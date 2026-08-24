@@ -8,6 +8,9 @@ import { runStates } from "@/commands/boards/run-states.js";
 import { runContext } from "@/commands/run-context.js";
 import type { AdoError } from "@/errors/ado-error.js";
 import { describeAdoError } from "@/errors/describe-ado-error.js";
+import type { Formato } from "@/format/formato.js";
+import { FORMATOS, FORMATO_POR_DEFECTO } from "@/format/formato.js";
+import { parseFormato } from "@/format/parse-formato.js";
 
 /**
  * ## rendir
@@ -19,13 +22,15 @@ import { describeAdoError } from "@/errors/describe-ado-error.js";
  * solo el mensaje: nunca el token ni la cabecera de autenticación.
  *
  * ```ts
- * await rendir(runOrphans());   // imprime y sale con 1 si hubo error
+ * await rendir((f) => runOrphans(f));   // imprime y sale con 1 si hubo error
  * ```
  */
 async function rendir(
-  operacion: Result<void, AdoError> | Promise<Result<void, AdoError>>,
+  operacion: (formato: Formato) => Result<void, AdoError> | Promise<Result<void, AdoError>>,
 ): Promise<void> {
-  const resultado = await operacion;
+  const elegido = parseFormato(String(program.opts()["format"]));
+  const resultado = Result.isErr(elegido) ? elegido : await operacion(elegido.value);
+
   const fallo = Result.isErr(resultado);
   if (!fallo) return;
 
@@ -47,6 +52,11 @@ program
       "~/.zshrc, ~/.bashrc, ~/.profile, ~/.zshenv y ~/.bash_profile; en Windows el\n" +
       "$PROFILE de PowerShell y los perfiles de Git Bash.",
   )
+  .option(
+    "--format <formato>",
+    `formato de salida: ${FORMATOS.join(", ")}`,
+    FORMATO_POR_DEFECTO,
+  )
   .version("0.1.0");
 
 program
@@ -54,28 +64,25 @@ program
   .description(
     "organización, proyecto, repositorio e identidad — para alimentar a `az`",
   )
-  .option("--json", "salida en JSON, para consumir desde otro proceso")
-  .action(async (opciones: { json?: boolean }) => {
-    await rendir(runContext(opciones.json === true));
+  .action(async () => {
+    await rendir(async (formato) => runContext(formato));
   });
 
-const boards = program
-  .command("boards")
-  .description("los huecos de `az boards`");
+const boards = program.command("boards").description("los huecos de `az boards`");
 
 boards
   .command("states")
   .argument("<tipo>", 'tipo de work item, p. ej. "Product Backlog Item"')
   .description("estados válidos del workflow de ese tipo (az no los expone)")
   .action(async (tipo: string) => {
-    await rendir(runStates(tipo));
+    await rendir(async (formato) => runStates(tipo, formato));
   });
 
 boards
   .command("orphans")
   .description("ramas locales sin work item asociado (no existe en az)")
   .action(async () => {
-    await rendir(runOrphans());
+    await rendir((formato) => runOrphans(formato));
   });
 
 boards
@@ -99,7 +106,7 @@ boards
       assign?: string;
       iteration?: string;
     }) => {
-      await rendir(runCreate(opciones));
+      await rendir(async (formato) => runCreate(opciones, formato));
     },
   );
 

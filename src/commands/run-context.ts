@@ -3,6 +3,8 @@ import { Result } from "@skapxd/result";
 import { requestAdo } from "@/api/request-ado.js";
 import { resolveContext } from "@/context/resolve-context.js";
 import type { AdoError } from "@/errors/ado-error.js";
+import type { Formato } from "@/format/formato.js";
+import { renderContexto } from "@/format/render-contexto.js";
 
 /**
  * ## runContext
@@ -15,11 +17,11 @@ import type { AdoError } from "@/errors/ado-error.js";
  * dato necesario para asignar work items sin adivinar correos.
  *
  * ```bash
- * ado context --json
- * # { "org": "MiOrg", "project": "MiProyecto", … , "identity": "yo@ejemplo.com" }
+ * ado context --format json
+ * # { "org": "MiOrg", "project": "MiProyecto", …, "identity": "yo@ejemplo.com" }
  * ```
  */
-export async function runContext(comoJson: boolean): Promise<Result<void, AdoError>> {
+export async function runContext(formato: Formato): Promise<Result<void, AdoError>> {
   const contexto = resolveContext();
   if (Result.isErr(contexto)) return contexto;
   const ctx = contexto.value;
@@ -30,17 +32,6 @@ export async function runContext(comoJson: boolean): Promise<Result<void, AdoErr
   if (Result.isErr(perfil)) return perfil;
 
   const { emailAddress } = perfil.value as { emailAddress?: string };
-  const identidad = emailAddress ?? "desconocida";
-
-  if (comoJson) {
-    console.log(JSON.stringify({ ...ctx, identity: identidad }, null, 2));
-    return Result.ok(undefined);
-  }
-
-  console.log(`organización: ${ctx.org}`);
-  console.log(`proyecto:     ${ctx.project}`);
-  console.log(`repositorio:  ${ctx.repo}`);
-  console.log(`url:          ${ctx.orgUrl}`);
-  console.log(`identidad:    ${identidad}`);
+  console.log(renderContexto(ctx, emailAddress ?? "desconocida", formato));
   return Result.ok(undefined);
 }

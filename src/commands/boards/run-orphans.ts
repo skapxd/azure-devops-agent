@@ -4,6 +4,8 @@ import { Result, trySafe } from "@skapxd/result";
 
 import { filtrarRamasSinWorkItem } from "@/commands/boards/filtrar-ramas-sin-work-item.js";
 import type { AdoError } from "@/errors/ado-error.js";
+import type { Formato } from "@/format/formato.js";
+import { renderRamasHuerfanas } from "@/format/render-ramas-huerfanas.js";
 
 /**
  * ## runOrphans
@@ -14,13 +16,11 @@ import type { AdoError } from "@/errors/ado-error.js";
  * rápido, se mergea, y nunca deja rastro en el tablero. Detectarlas es la forma
  * barata de recuperar esa trazabilidad antes de que se olvide del todo.
  *
- * ```ts
- * runOrphans();
- * // Ramas sin work item asociado:
- * //   back/n-a/duplicar-concesionarios-con-etiqueta
+ * ```bash
+ * ado boards orphans
  * ```
  */
-export function runOrphans(): Result<void, AdoError> {
+export function runOrphans(formato: Formato): Result<void, AdoError> {
   const ramas = trySafe(() =>
     execFileSync("git", ["branch", "--format=%(refname:short)"], {
       encoding: "utf8",
@@ -31,14 +31,6 @@ export function runOrphans(): Result<void, AdoError> {
   const gitFallo = Result.isErr(ramas);
   if (gitFallo) return Result.err({ type: "sin-repo" });
 
-  const huerfanas = filtrarRamasSinWorkItem(ramas.value);
-  const todasTienenNumero = huerfanas.length === 0;
-  if (todasTienenNumero) {
-    console.log("(ninguna — todas las ramas referencian un work item)");
-    return Result.ok(undefined);
-  }
-
-  console.log("Ramas sin work item asociado:");
-  for (const rama of huerfanas) console.log(`  ${rama}`);
+  console.log(renderRamasHuerfanas(filtrarRamasSinWorkItem(ramas.value), formato));
   return Result.ok(undefined);
 }

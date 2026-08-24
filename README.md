@@ -59,12 +59,29 @@ Ese rodeo existe porque en macOS y Linux un shell no interactivo no carga `.zshr
 Son cuatro, y cada uno existe porque `az` no lo cubre:
 
 ```
-ado context [--json]        organización, proyecto, repositorio e identidad
+ado context                 organización, proyecto, repositorio e identidad
 ado boards states <tipo>    estados válidos del workflow de ese tipo
 ado boards orphans          ramas locales sin work item asociado
 ado boards create --type <tipo> --title <texto> --parent <id>
                   [--description <html>] [--assign <correo>] [--iteration <ruta>]
+
+--format <markdown|json|text>    en cualquier comando (por defecto: markdown)
 ```
+
+### Formato de salida
+
+El predeterminado es **markdown**, porque el lector principal de este CLI es un agente de código y el markdown le da estructura semántica —tablas, listas ordenadas, énfasis— que el texto alineado con espacios no tiene.
+
+```console
+$ ado context
+| Campo | Valor |
+| --- | --- |
+| Organización | `MiOrg` |
+| Proyecto | `MiProyecto` |
+| Identidad | `persona@ejemplo.com` |
+```
+
+`--format json` para encadenar con otro proceso, `--format text` para la salida compacta de siempre. Un valor desconocido se rechaza en vez de caer al predeterminado en silencio: quien escribe `--format markdwon` quiere markdown, y darle otra cosa sin avisar le hace perder más tiempo que un error.
 
 Por qué cada uno:
 

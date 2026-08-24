@@ -4,6 +4,8 @@ import type { OperacionPatch } from "@/api/send-ado.js";
 import { sendAdo } from "@/api/send-ado.js";
 import { resolveContext } from "@/context/resolve-context.js";
 import type { AdoError } from "@/errors/ado-error.js";
+import type { Formato } from "@/format/formato.js";
+import { renderWorkItemCreado } from "@/format/render-work-item-creado.js";
 import type { CreateOptions } from "./create-options.js";
 
 /**
@@ -22,6 +24,7 @@ import type { CreateOptions } from "./create-options.js";
  */
 export async function runCreate(
   opciones: CreateOptions,
+  formato: Formato,
 ): Promise<Result<void, AdoError>> {
   const contexto = resolveContext();
   if (Result.isErr(contexto)) return contexto;
@@ -70,7 +73,16 @@ export async function runCreate(
   if (Result.isErr(creado)) return creado;
 
   const { id } = creado.value as { id: number };
-  console.log(`#${String(id)}  ${opciones.title}  (hijo de #${opciones.parent})`);
-  console.log(`${ctx.orgUrl}/${ctx.project}/_workitems/edit/${String(id)}`);
+  console.log(
+    renderWorkItemCreado(
+      {
+        id,
+        title: opciones.title,
+        parent: opciones.parent,
+        url: `${ctx.orgUrl}/${ctx.project}/_workitems/edit/${String(id)}`,
+      },
+      formato,
+    ),
+  );
   return Result.ok(undefined);
 }
