@@ -25,7 +25,7 @@ El Personal Access Token es el activo sensible. Las reglas:
 - **Nunca se imprime.** Ni en la salida normal ni en los mensajes de error, que reportan solo el mensaje de la excepción.
 - **Nunca se escribe a disco.**
 - **Nunca se pasa por argumentos.** `argv` es visible para cualquier proceso de la máquina (`ps`), así que el token solo viaja en la cabecera `Authorization` de la petición.
-- **Se lee, no se ejecuta.** Los perfiles de shell (`.zshrc`, `.bashrc`, …) se leen como texto y se extrae el valor con una expresión regular.
+- **Se lee, no se ejecuta.** Los perfiles de shell se leen como texto y se extrae el valor con una expresión regular — tanto los POSIX (`.zshrc`, `.bashrc`, …) como el `$PROFILE` de PowerShell en Windows.
 
 Esa última decisión merece contexto: la primera versión de este script era bash y hacía `eval` de la línea del perfil que definía la variable. Funcionaba, pero significaba ejecutar contenido de un archivo — inyección de código de manual, y con razón cualquier escáner estático lo marca. Al reescribirlo en Node desapareció.
 

@@ -34,13 +34,23 @@ npx skills add skapxd/azure-devops-agent -a claude-code -a opencode
 ## Requisitos
 
 - **Node 18+** y **git**. Nada más: ni Azure CLI, ni Python, ni bash — funciona igual en Windows, macOS y Linux.
-- **Un Personal Access Token** con permiso *Work Items (Read & Write)*, generado en `https://dev.azure.com/<tu-organizacion>/_usersSettings/tokens`:
+- **Un Personal Access Token** con permiso *Work Items (Read & Write)*, generado en `https://dev.azure.com/<tu-organizacion>/_usersSettings/tokens`.
+
+En macOS y Linux:
 
 ```bash
 echo 'export AZURE_DEVOPS_EXT_PAT="<tu-token>"' >> ~/.zshrc
 ```
 
-Se busca también en `~/.bashrc`, `~/.profile`, `~/.zshenv` y `~/.bash_profile`, porque los shells no interactivos no cargan el perfil y ahí el token "desaparece".
+En Windows (PowerShell):
+
+```powershell
+[Environment]::SetEnvironmentVariable("AZURE_DEVOPS_EXT_PAT", "<tu-token>", "User")
+```
+
+El token se lee primero del entorno. Si no está ahí, se busca en el perfil de shell del sistema: en macOS y Linux `~/.zshrc`, `~/.bashrc`, `~/.profile`, `~/.zshenv` y `~/.bash_profile`; en Windows el `$PROFILE` de PowerShell (5.1 y 7+) y los perfiles de Git Bash.
+
+Ese rodeo existe porque en macOS y Linux un shell no interactivo no carga `.zshrc`: la variable está declarada, pero `process.env` no la ve. En Windows el problema casi no se da —las variables viven en el registro y cualquier proceso las ve—, así que ahí el fallback solo cubre a quien prefiera declararla en su `$PROFILE`.
 
 ## Comandos
 

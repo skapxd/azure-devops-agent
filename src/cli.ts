@@ -47,9 +47,10 @@ program
   .description(
     "Azure DevOps desde la terminal.\n" +
       "Detecta organización y proyecto del git remote: no hay nada que configurar.\n\n" +
-      "Autenticación: Personal Access Token en AZURE_DEVOPS_EXT_PAT. Se busca en el\n" +
-      "entorno y, si no está, en ~/.zshrc, ~/.bashrc, ~/.profile, ~/.zshenv y\n" +
-      "~/.bash_profile.",
+      "Autenticación: Personal Access Token en AZURE_DEVOPS_EXT_PAT. Se lee del\n" +
+      "entorno y, si no está ahí, del perfil de shell del sistema: en macOS y Linux\n" +
+      "~/.zshrc, ~/.bashrc, ~/.profile, ~/.zshenv y ~/.bash_profile; en Windows el\n" +
+      "$PROFILE de PowerShell y los perfiles de Git Bash.",
   )
   .version("0.1.0");
 

@@ -36,7 +36,7 @@ Si el remote no es de Azure DevOps, falla con un mensaje claro y esta skill no a
 
 ### Token
 
-Hace falta un Personal Access Token en `AZURE_DEVOPS_EXT_PAT`. El CLI lo busca en el entorno y, si no está (habitual en shells no interactivos), en `~/.zshrc`, `~/.bashrc`, `~/.profile`, `~/.zshenv` y `~/.bash_profile`.
+Hace falta un Personal Access Token en `AZURE_DEVOPS_EXT_PAT`. El CLI lo lee del entorno y, si no está ahí (habitual en shells no interactivos), del perfil de shell del sistema: en macOS y Linux `~/.zshrc`, `~/.bashrc`, `~/.profile`, `~/.zshenv` y `~/.bash_profile`; en Windows el `$PROFILE` de PowerShell y los perfiles de Git Bash.
 
 Si no aparece, indica al usuario que genere uno en `https://dev.azure.com/<org>/_usersSettings/tokens` con permiso **Work Items (Read & Write)** y lo exporte en su perfil. Nunca intentes crear, adivinar ni imprimir el token.
 
