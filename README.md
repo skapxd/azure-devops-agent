@@ -1,39 +1,77 @@
-# azure-devops-skill
+# azure-devops-agent
 
-Una [Agent Skill](https://github.com/vercel-labs/skills) que hace que registrar trabajo en **Azure Boards** cueste una frase en vez de cinco minutos en el portal.
+Azure DevOps desde la terminal, sin configurar nada: la organización y el proyecto salen del `git remote`.
 
-El tablero es la memoria del equipo, pero mantenerlo al día compite con escribir código y casi siempre pierde. No por desconocimiento: por fricción. Esta skill traslada la creación de work items a la terminal, donde ya estás, y hace que el agente proponga registrar el trabajo que de otro modo se perdería — ramas sin historia asociada, deuda técnica, hallazgos de code review que quedan para después.
+El repo entrega dos cosas que se usan por separado:
 
-Funciona con cualquier agente compatible con el formato de skills: Claude Code, OpenCode, Codex, Cursor y otros.
+| | Qué es | Cómo se usa |
+|---|---|---|
+| **CLI** | `@skapxd/azure-devops-agent`, compilado y publicado en npm | `pnpx @skapxd/azure-devops-agent <comando>` |
+| **Skill** | Instrucciones para agentes de código (Claude Code, OpenCode, Codex, Cursor…) | `npx skills add skapxd/azure-devops-agent` |
+
+El CLI sirve solo, sin agente. La skill le enseña a tu agente **cuándo** usarlo — que es la parte difícil: el tablero no se desactualiza por ignorancia, sino porque registrar el trabajo compite con escribir código y casi siempre pierde.
 
 ## Instalación
 
+**El CLI** no requiere instalación:
+
 ```bash
-npx skills add skapxd/azure-devops-skill
+pnpx @skapxd/azure-devops-agent check
 ```
 
-Para instalarla solo en algunos agentes:
+**La skill**, en todos tus agentes a la vez:
 
 ```bash
-npx skills add skapxd/azure-devops-skill -a claude-code -a opencode
+npx skills add skapxd/azure-devops-agent
+```
+
+o solo en algunos:
+
+```bash
+npx skills add skapxd/azure-devops-agent -a claude-code -a opencode
 ```
 
 ## Requisitos
 
-- **Azure CLI** con la extensión de DevOps:
-  ```bash
-  az extension add --name azure-devops
-  ```
-- **Un Personal Access Token** con permiso *Work Items (Read & Write)*, generado en
-  `https://dev.azure.com/<tu-organizacion>/_usersSettings/tokens` y exportado en tu perfil:
-  ```bash
-  echo 'export AZURE_DEVOPS_EXT_PAT="<tu-token>"' >> ~/.zshrc
-  ```
-- **Node 18+** — sin dependencias de runtime.
+- **Node 18+** y **git**. Nada más: ni Azure CLI, ni Python, ni bash — funciona igual en Windows, macOS y Linux.
+- **Un Personal Access Token** con permiso *Work Items (Read & Write)*, generado en `https://dev.azure.com/<tu-organizacion>/_usersSettings/tokens`:
+
+```bash
+echo 'export AZURE_DEVOPS_EXT_PAT="<tu-token>"' >> ~/.zshrc
+```
+
+Se busca también en `~/.bashrc`, `~/.profile`, `~/.zshenv` y `~/.bash_profile`, porque los shells no interactivos no cargan el perfil y ahí el token "desaparece".
+
+## Comandos
+
+```
+ado context [--json]              organización, proyecto y repositorio
+ado check                         valida el token y muestra la identidad
+
+ado boards types                  tipos de work item del proyecto
+ado boards states <tipo>          estados reales del workflow de ese tipo
+ado boards iteration              ruta del sprint en curso
+ado boards search <texto>         busca por título, para no duplicar tickets
+ado boards show <id>              un work item con su padre y sus hijos
+ado boards list --assignee <mail> trabajo abierto de esa persona
+ado boards orphans                ramas locales sin work item asociado
+
+ado boards create --type <tipo> --title <texto>
+                  [--description <html>] [--parent <id>]
+                  [--assign <correo>] [--iteration <ruta>]
+
+ado boards update <id> [--state <estado>] [--assign <correo>] [--comment <texto>]
+```
+
+Tres que resuelven problemas concretos:
+
+- **`create --parent`** crea el work item y lo cuelga de su historia en **una sola llamada**. Con la API en dos pasos, un fallo entre medias deja un huérfano que nadie sabe de dónde salió.
+- **`orphans`** lista las ramas que no referencian ningún work item. Es donde más trazabilidad se pierde: una rama sin número nace de un arreglo rápido, se mergea, y no deja rastro.
+- **`states`** consulta el workflow real en vez de asumir la plantilla. Casi todos los proyectos lo tienen personalizado, y usar un estado que no existe falla.
 
 ## Configuración
 
-Ninguna. La organización, el proyecto y el repositorio se derivan del `git remote`, así que la skill funciona en cualquier repo de Azure DevOps sin tocar un archivo de config. Soporta los tres formatos de remote:
+Ninguna. Se soportan los tres formatos de remote de Azure DevOps:
 
 ```
 git@ssh.dev.azure.com:v3/<org>/<proyecto>/<repo>
@@ -41,27 +79,17 @@ https://<org>@dev.azure.com/<org>/<proyecto>/_git/<repo>
 https://<org>.visualstudio.com/<proyecto>/_git/<repo>
 ```
 
-Para comprobar qué detecta en tu repo:
+Los tipos de work item y sus estados se consultan al proyecto en tiempo real, así que funciona igual con Agile, Scrum, CMMI o un workflow a medida.
+
+## Desarrollo
 
 ```bash
-node skills/azure-devops/scripts/ado-context.mjs check
+pnpm install
+pnpm check       # tipos estrictos + lint + pruebas
+pnpm build       # compila a dist/
 ```
 
-Los tipos de work item y sus estados también se consultan al proyecto en tiempo real, en vez de asumir una plantilla — así funciona igual con Agile, Scrum, CMMI o un workflow personalizado.
-
-## Qué hace
-
-- Propone crear el work item cuando detecta trabajo que no tiene ninguno detrás, con título y descripción ya redactados
-- Crea historias, tareas y bugs, y cuelga las tareas de su historia padre
-- Asigna, cambia de estado y comenta
-- Consulta qué hay asignado y en qué va cada cosa
-- Sugiere el `#id` en los mensajes de commit, que es lo que enlaza el código con el tablero
-
-Siempre pide confirmación antes de crear o modificar algo: un work item es visible para todo el equipo y notifica a quien se asigne.
-
-## Convenciones de tu equipo
-
-La skill no inventa convenciones propias (cómo nombran las ramas, qué significa cada estado, quién revisa). Si tu repo tiene un `CLAUDE.md` o `AGENTS.md` con esas reglas, las lee y las respeta por encima de sus propios valores por defecto. Ese es el lugar para lo específico de tu equipo — así no viaja dentro de un paquete público.
+Ver [SECURITY.md](SECURITY.md) para las decisiones de manejo del token y por qué el CLI no ejecuta shell.
 
 ## Licencia
 
