@@ -1,0 +1,12 @@
+# Política de scripts de instalación (pnpm 11+).
+#
+# Por defecto ningún paquete puede ejecutar código al instalarse: es la
+# protección de pnpm contra ataques de cadena de suministro, donde un paquete
+# comprometido ejecuta su payload en el postinstall.
+#
+# Cada entrada aquí es una decisión consciente y revisada:
+allowBuilds:
+  # esbuild (dependencia de tsx) trae un postinstall, pero distribuye binarios
+  # precompilados por plataforma vía optionalDependencies. Verificado: tsx
+  # funciona sin ejecutarlo, así que se deniega.
+  esbuild: false

@@ -16,7 +16,7 @@ El problema rara vez es que la gente no sepa usar el tablero. Es que abrir el po
 No pidas la organización ni el proyecto: salen del `git remote`. El script incluido los deriva y carga el token:
 
 ```bash
-bash skills/azure-devops/scripts/ado-context.sh --check
+node skills/azure-devops/scripts/ado-context.mjs check
 ```
 
 ```
@@ -26,7 +26,16 @@ repositorio:  MiRepo
 identidad:    persona@ejemplo.com
 ```
 
-Dentro de un script, cárgalo con `source` para tener `$ADO_ORG`, `$ADO_PROJECT`, `$ADO_REPO`, `$ADO_ORG_URL` y las funciones `ado_load_pat` y `ado_auth_header`.
+El script es la única puerta al contexto y a las consultas de solo lectura, y funciona igual en macOS, Linux y Windows — solo necesita Node 18+ y git, sin `curl`, `python` ni bash:
+
+| Comando | Devuelve |
+|---|---|
+| `context` | organización, proyecto y repositorio |
+| `context --json` | lo mismo en JSON, para encadenar con otro proceso |
+| `check` | además valida el token y muestra la identidad |
+| `iteration` | ruta del sprint en curso (vacío si no hay) |
+| `states <tipo>` | estados válidos de un tipo de work item |
+| `types` | tipos de work item del proyecto |
 
 Si el remote no es de Azure DevOps, el script falla con un mensaje claro y esta skill no aplica — dilo y sigue con lo que el usuario estaba haciendo.
 

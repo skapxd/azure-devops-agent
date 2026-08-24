@@ -29,7 +29,7 @@ npx skills add skapxd/azure-devops-skill -a claude-code -a opencode
   ```bash
   echo 'export AZURE_DEVOPS_EXT_PAT="<tu-token>"' >> ~/.zshrc
   ```
-- **Python 3**, para parsear las respuestas de la API.
+- **Node 18+** — sin dependencias de runtime.
 
 ## Configuración
 
@@ -44,7 +44,7 @@ https://<org>.visualstudio.com/<proyecto>/_git/<repo>
 Para comprobar qué detecta en tu repo:
 
 ```bash
-bash skills/azure-devops/scripts/ado-context.sh --check
+node skills/azure-devops/scripts/ado-context.mjs check
 ```
 
 Los tipos de work item y sus estados también se consultan al proyecto en tiempo real, en vez de asumir una plantilla — así funciona igual con Agile, Scrum, CMMI o un workflow personalizado.

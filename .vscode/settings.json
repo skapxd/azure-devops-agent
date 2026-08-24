@@ -1,0 +1,16 @@
+{
+  // Las reglas de @skapxd/lint-agent se ven mientras se escribe, no solo al
+  // ejecutar `pnpm lint`.
+  "eslint.useFlatConfig": true,
+  "eslint.validate": ["typescript", "javascript"],
+  "eslint.workingDirectories": [{ "mode": "auto" }],
+
+  // El proyecto usa la versión de TypeScript instalada, no la que trae VS Code,
+  // para que editor y CLI reporten exactamente lo mismo.
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  }
+}
