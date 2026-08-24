@@ -6,7 +6,15 @@
 #
 # Cada entrada aquí es una decisión consciente y revisada:
 allowBuilds:
-  # esbuild (dependencia de tsx) trae un postinstall, pero distribuye binarios
-  # precompilados por plataforma vía optionalDependencies. Verificado: tsx
+  # esbuild (dependencia de tsup) trae un postinstall, pero distribuye binarios
+  # precompilados por plataforma vía optionalDependencies. Verificado: tsup
   # funciona sin ejecutarlo, así que se deniega.
   esbuild: false
+
+# Resoluciones forzadas.
+overrides:
+  # bundle-require arrastra esbuild 0.27.7, afectada por GHSA-g7r4-m6w7-qqqr
+  # (lectura arbitraria de archivos con el dev server en Windows). Solo es
+  # dependencia de desarrollo y no llega al paquete publicado, pero corregirla
+  # cuesta una línea y deja la auditoría limpia.
+  esbuild: ">=0.28.1"

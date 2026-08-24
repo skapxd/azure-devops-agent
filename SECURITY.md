@@ -4,9 +4,19 @@ Esta skill lee y escribe en el Azure DevOps de quien la instala, así que el có
 
 ## Superficie de dependencias
 
-**Cero dependencias de runtime.** El script usa solo módulos nativos de Node 18+ (`node:child_process`, `node:fs`, `node:os`, `node:path`, `node:url`) y el `fetch` global. No hay `node_modules` que auditar en tiempo de ejecución ni cadena de suministro que vigilar.
+**Tres dependencias de runtime**, todas sin dependencias propias — el árbol es plano, no una cascada:
 
-Las únicas dependencias son de desarrollo — `typescript` y `@types/node` — y sirven para verificar tipos. No se ejecutan ni se distribuyen con la skill.
+| Paquete | Para qué | Por qué se acepta |
+|---|---|---|
+| `commander` | parseo de argumentos | Reemplazó a un parser propio que fallaba en `--flag=valor` y aceptaba `--title` sin valor, creando work items titulados `"true"`. Un parser de CLI escrito a mano es más riesgo que una dependencia establecida. |
+| `@skapxd/result` | errores como valores | Evita `try/catch` disperso; los fallos se modelan y se consumen en un solo sitio. |
+| `ts-pattern` | despacho exhaustivo | El compilador exige cubrir cada variante de error: una nueva no puede quedar sin tratar en silencio. |
+
+Todo lo demás sale de Node 18+ (`node:child_process`, `node:fs`, `node:os`, `node:path`, `node:url`, `fetch` global).
+
+`typescript`, `@types/node`, `tsx`, `tsup`, `eslint` y `@skapxd/lint-agent` son de desarrollo: no se ejecutan ni se distribuyen con el paquete publicado.
+
+**La skill no lleva ninguna.** Lo que `npx skills add` copia a la máquina de cada persona es un único `SKILL.md`: markdown, sin código y sin dependencias. Toda la superficie ejecutable vive en el CLI, que es un paquete npm normal con su lockfile y su auditoría.
 
 ## Manejo del token
 
@@ -42,11 +52,17 @@ El token necesita únicamente los permisos del área que vayas a usar — para B
 - No envía datos a ningún servicio que no sea la organización de Azure DevOps del propio repositorio
 - No instala nada en tiempo de ejecución
 
+## Política de scripts de instalación
+
+El proyecto usa pnpm 11 con `allowBuilds`, así que **ningún paquete puede ejecutar código al instalarse** salvo que se apruebe explícitamente en `pnpm-workspace.yaml`. Es la protección contra el vector más común de ataque de cadena de suministro: un paquete comprometido que ejecuta su payload en un `postinstall`.
+
+Hoy no hay ninguno aprobado.
+
 ## Verificar por tu cuenta
 
 ```bash
-npm run check     # tipos estrictos + pruebas
-npm audit         # sin dependencias de runtime que auditar
+pnpm check     # tipos estrictos + lint + pruebas
+pnpm audit     # auditoría del árbol de dependencias
 ```
 
 ## Reportar un problema

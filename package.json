@@ -30,6 +30,7 @@
   "license": "MIT",
   "dependencies": {
     "@skapxd/result": "^2.0.1",
+    "commander": "^15.0.0",
     "ts-pattern": "^5.9.0"
   },
   "bin": {
