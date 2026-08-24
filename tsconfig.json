@@ -6,7 +6,8 @@
     "lib": ["ES2022"],
     "types": ["node"],
 
-    "baseUrl": ".",
+    // Sin baseUrl: está deprecado y deja de funcionar en TypeScript 7.
+    // Los paths con "./" se resuelven relativos a este archivo.
     "paths": { "@/*": ["./src/*"] },
 
     "noEmit": true,
