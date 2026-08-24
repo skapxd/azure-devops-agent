@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { parseRemote } from "../skills/azure-devops/scripts/ado-context.js";
+import { parseRemote } from "@/context/parse-remote.js";
 
 const resumen = (url: string): string | null => {
-  const r = parseRemote(url);
-  return r ? `${r.org}/${r.project}/${r.repo}` : null;
+  const contexto = parseRemote(url);
+  const noEsAdo = contexto === null;
+  if (noEsAdo) return null;
+  return `${contexto.org}/${contexto.project}/${contexto.repo}`;
 };
 
 test("reconoce los tres formatos de remote de Azure DevOps", () => {
@@ -28,7 +30,6 @@ test("descarta remotes que no son de Azure DevOps", () => {
 });
 
 test("no deja pasar metacaracteres de shell ni path traversal", () => {
-  // Estos valores acabarían dentro de una URL, así que se rechazan antes.
   assert.equal(resumen("git@ssh.dev.azure.com:v3/../../evil/Proy/Repo"), null);
   assert.equal(resumen("https://dev.azure.com/Org$(whoami)/Proy/_git/Repo"), null);
   assert.equal(resumen("https://dev.azure.com/Org`id`/Proy/_git/Repo"), null);
@@ -42,7 +43,7 @@ test("no acepta un host que solo se parece al de Azure", () => {
 });
 
 test("la URL de organización queda escapada", () => {
-  const r = parseRemote("git@ssh.dev.azure.com:v3/Mi Org/Proy/Repo");
-  assert.ok(r);
-  assert.equal(r.orgUrl, "https://dev.azure.com/Mi%20Org");
+  const contexto = parseRemote("git@ssh.dev.azure.com:v3/Mi Org/Proy/Repo");
+  assert.ok(contexto);
+  assert.equal(contexto.orgUrl, "https://dev.azure.com/Mi%20Org");
 });

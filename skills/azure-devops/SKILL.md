@@ -1,9 +1,9 @@
 ---
 name: azure-devops-workflow
-description: Trabaja con Azure DevOps desde la terminal en cualquier repo alojado ahí — crea y actualiza work items (historias, tareas, bugs), consulta el tablero y enlaza el código con su ticket. Detecta la organización y el proyecto solos, desde el git remote. Úsala siempre que aparezca trabajo sin registrar: una rama sin número de historia, un pendiente que el usuario menciona al pasar, deuda técnica, un TODO que quedará para después, un hallazgo de code review que no se corregirá ahora, o al cerrar algo para dejar el tablero al día. También cuando pregunten qué tienen asignado, en qué va una historia, por qué falló un pipeline, o quieran enlazar una rama con su ticket. No esperes a que digan "Azure DevOps" o "work item" — el trabajo se pierde justamente porque nadie se acuerda de nombrarlo.
+description: Registra y consulta trabajo en Azure DevOps desde la terminal — crea historias, tareas hijas y bugs, los asigna, los transiciona y los enlaza con el código, usando el CLI @skapxd/azure-devops-agent. Detecta organización y proyecto solos, desde el git remote. Úsala siempre que aparezca trabajo sin registrar: una rama sin número de historia, un pendiente que el usuario menciona al pasar, deuda técnica, un TODO que quedará para después, un hallazgo de code review que no se corregirá ahora, o al cerrar algo para dejar el tablero al día. También cuando pregunten qué tienen asignado o en qué va una historia. No esperes a que digan "Azure DevOps" o "work item" — el trabajo se pierde justamente porque nadie se acuerda de nombrarlo.
 ---
 
-# Azure DevOps desde la terminal
+# Trazabilidad en Azure DevOps
 
 El tablero es la memoria del equipo: si algo no está ahí, para quien planifica y para quien llegue en seis meses ese trabajo no existió.
 
@@ -11,12 +11,18 @@ El problema rara vez es que la gente no sepa usar el tablero. Es que abrir el po
 
 **Tu trabajo es quitar esa fricción, no recordarle a nadie que la sufra.** Cuando detectes trabajo sin registrar, ofrécete a crear el work item tú mismo, con el título y la descripción ya redactados, para que la respuesta del usuario sea un sí y nada más.
 
-## Contexto del repositorio
+## El CLI
 
-No pidas la organización ni el proyecto: salen del `git remote`. El script incluido los deriva y carga el token:
+Todo pasa por `@skapxd/azure-devops-agent`, que se ejecuta sin instalar nada:
 
 ```bash
-node skills/azure-devops/scripts/ado-context.mjs check
+pnpx @skapxd/azure-devops-agent <comando>
+```
+
+Deriva organización y proyecto del `git remote`, así que no preguntes por ellos. Empieza por aquí para saber dónde estás parado:
+
+```bash
+pnpx @skapxd/azure-devops-agent check
 ```
 
 ```
@@ -26,49 +32,84 @@ repositorio:  MiRepo
 identidad:    persona@ejemplo.com
 ```
 
-El script es la única puerta al contexto y a las consultas de solo lectura, y funciona igual en macOS, Linux y Windows — solo necesita Node 18+ y git, sin `curl`, `python` ni bash:
-
-| Comando | Devuelve |
-|---|---|
-| `context` | organización, proyecto y repositorio |
-| `context --json` | lo mismo en JSON, para encadenar con otro proceso |
-| `check` | además valida el token y muestra la identidad |
-| `iteration` | ruta del sprint en curso (vacío si no hay) |
-| `states <tipo>` | estados válidos de un tipo de work item |
-| `types` | tipos de work item del proyecto |
-
-Si el remote no es de Azure DevOps, el script falla con un mensaje claro y esta skill no aplica — dilo y sigue con lo que el usuario estaba haciendo.
+Si el remote no es de Azure DevOps, falla con un mensaje claro y esta skill no aplica — dilo y sigue con lo que el usuario estaba haciendo.
 
 ### Token
 
-La autenticación usa un Personal Access Token en `AZURE_DEVOPS_EXT_PAT`. El script lo busca en el entorno y, si no está (habitual en shells no interactivos), en `~/.zshrc`, `~/.bashrc`, `~/.profile` y `~/.zshenv`.
+Hace falta un Personal Access Token en `AZURE_DEVOPS_EXT_PAT`. El CLI lo busca en el entorno y, si no está (habitual en shells no interactivos), en `~/.zshrc`, `~/.bashrc`, `~/.profile`, `~/.zshenv` y `~/.bash_profile`.
 
-Si no aparece, indica al usuario que genere uno en `https://dev.azure.com/<org>/_usersSettings/tokens` con los permisos del área que vaya a usar, y lo exporte en su perfil. Nunca intentes crear, adivinar ni imprimir el token — al mostrar comandos, deja la variable sin expandir.
-
-Muchas operaciones también funcionan con `az devops` tras `az login`; el PAT es lo que hace que funcionen sin sesión interactiva.
+Si no aparece, indica al usuario que genere uno en `https://dev.azure.com/<org>/_usersSettings/tokens` con permiso **Work Items (Read & Write)** y lo exporte en su perfil. Nunca intentes crear, adivinar ni imprimir el token.
 
 ## Cuándo intervenir
 
-El equilibrio importa: una skill que interrumpe en cada mensaje termina desactivada, y entonces no sirve para nada. Propón donde el costo de olvidar es alto:
+Una skill que interrumpe en cada mensaje termina desactivada, y entonces no sirve para nada. Propón donde el costo de olvidar es alto:
 
-- **Rama sin historia asociada.** Muchos equipos codifican el número en el nombre (`feat/1234-descripcion`, `area/4567/slug`). Cuando no hay número, o hay un marcador de "no aplica", ese trabajo no tiene nada en el tablero. Es el caso que más se pierde.
-- **Hallazgos que no se corrigen ahora.** Una revisión que encuentra cinco cosas y arregla dos deja tres que se evaporan al cerrar la conversación. Esas tres son justamente lo que debe quedar registrado.
+- **Rama sin historia asociada.** `boards orphans` las lista. Es el caso que más trabajo pierde: una rama sin número nace de un arreglo rápido, se mergea, y nunca deja rastro.
+- **Hallazgos que no se corrigen ahora.** Una revisión que encuentra cinco cosas y arregla dos deja tres que se evaporan al cerrar la conversación.
 - **Deuda técnica que tú mismo introduces.** Un workaround, un TODO, un script de migración temporal que alguien debe borrar después: nadie más sabe que existe.
-- **Pendientes que el usuario menciona al pasar.** "Hay que revisar eso", "lleva fallando un tiempo", "algún día habría que migrarlo".
+- **Pendientes mencionados al pasar.** "Hay que revisar eso", "lleva fallando un tiempo", "algún día habría que migrarlo".
 
-Cuándo **no**: cambios triviales, exploración o depuración que no deja pendientes, y cuando el usuario ya dijo que no. Una propuesta por tema; si dice que no, sigue sin insistir.
+Cuándo **no**: cambios triviales, exploración que no deja pendientes, y cuando el usuario ya dijo que no. Una propuesta por tema; si dice que no, sigue sin insistir.
 
 **Confirma antes de crear o modificar.** Un work item es visible para todo el equipo y notifica a quien se asigne. No es reversible sin ruido.
 
-## Áreas
+## Comandos
 
-Azure DevOps son varios productos bajo un mismo techo. Lee el archivo del área que necesites en vez de cargarlas todas — cada uno trae los comandos y las trampas de su parte:
+```bash
+ado context [--json]              # organización, proyecto y repositorio
+ado check                         # valida el token y muestra la identidad
 
-| Área | Archivo | Para qué |
-|---|---|---|
-| **Boards** | `references/boards.md` | Work items: crear historias, tareas y bugs, jerarquía padre-hijo, asignar, transicionar, consultar con WiQL, comentar |
+ado boards types                  # tipos de work item del proyecto
+ado boards states <tipo>          # estados reales del workflow de ese tipo
+ado boards iteration              # ruta del sprint en curso
+ado boards search <texto>         # busca por título
+ado boards show <id>              # un work item con su padre y sus hijos
+ado boards list --assignee <mail> # trabajo abierto de esa persona
+ado boards orphans                # ramas locales sin work item asociado
 
-Áreas aún no cubiertas: Pipelines (builds, releases, logs de fallos), Repos (pull requests, políticas) y Wiki. Si el usuario pide algo de esas áreas, dilo con franqueza y resuelve con `az devops`/REST directamente en vez de improvisar instrucciones que no están validadas.
+ado boards create --type <tipo> --title <texto>
+                  [--description <html>] [--parent <id>]
+                  [--assign <correo>] [--iteration <ruta>]
+
+ado boards update <id> [--state <estado>] [--assign <correo>] [--comment <texto>]
+```
+
+(`ado` es el binario; con `pnpx` se escribe `pnpx @skapxd/azure-devops-agent boards …`)
+
+### Antes de crear
+
+**Consulta el flujo, no lo asumas.** Los tipos y estados varían según la plantilla del proyecto y casi siempre están personalizados. Usar un estado que no existe falla; usar uno que existe pero significa otra cosa desordena el tablero de todos.
+
+```bash
+ado boards types
+ado boards states "Product Backlog Item"
+```
+
+Muchos equipos añaden estados que reflejan su pipeline de ambientes ("Listo para QA", "En Pre-Prod"). Respeta esa semántica: suelen distinguir *esperando despliegue* de *desplegado y en validación*.
+
+**Busca si ya existe.** Duplicar tickets hace tanto daño como no crearlos:
+
+```bash
+ado boards search "palabra clave"
+```
+
+### Crear con jerarquía
+
+`--parent` cuelga el work item de su historia **en la misma llamada**:
+
+```bash
+ado boards create --type Task --title "Quitar el índice único" --parent 1234
+```
+
+Descomponer una historia en tareas es lo primero que se salta el equipo cuando va con prisa, y es lo que hace que el tablero refleje el avance real en vez de saltar de 0% a 100%. Si el usuario acaba de crear una historia con frentes claros (backend, frontend, pruebas), ofrécele crear las tareas de una vez.
+
+`--description` se renderiza como **HTML**: usa `<br>`, `<ul><li>`, `<b>`. Los saltos de línea planos se pierden y el texto queda en un párrafo ilegible.
+
+Para el sprint en curso, `ado boards iteration` y pásalo con `--iteration`. Si no hay sprint activo, omítelo: cae al backlog, que es lo correcto.
+
+### Asignar
+
+Se asigna por correo, y el del usuario actual sale de `ado check`. **No adivines el correo de otras personas**: si hay que asignar a alguien más y no lo sabes con certeza, pregunta — asignar al que no es le llega como notificación y ensucia su lista.
 
 ## Enlazar el código con su ticket
 
@@ -87,6 +128,8 @@ Si el trabajo nació en una rama sin número y luego se le creó el work item, l
 El título se lee en una lista de cientos. "Corregir bug" o "Ajustes varios" no le dicen nada a nadie; "El login resuelve la cuenta equivocada cuando hay dominios duplicados" sí. Di qué pasa, no dónde.
 
 En la descripción prioriza lo que no es obvio leyendo el código: por qué importa, qué se rompe si no se hace, qué se decidió y qué se descartó. El cómo ya está en el diff.
+
+Para un bug, la descripción vale por lo reproducible que sea: pasos, resultado esperado, resultado actual. Si salió de una revisión de código, cita `archivo:línea`.
 
 Escribe en el idioma del tablero. Si los work items existentes están en español, sigue en español.
 
