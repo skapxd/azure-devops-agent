@@ -19,7 +19,7 @@ El problema rara vez es que la gente no sepa usar el tablero. Es que abrir el po
 
 | Necesidad | Comando |
 |---|---|
-| Saber org, proyecto e identidad de este repo | `ado context --json` |
+| Saber org, proyecto e identidad de este repo | `ado context` |
 | Estados válidos de un tipo de work item | `ado boards states "<tipo>"` |
 | Crear un work item **ya colgado** de su padre | `ado boards create --parent <id> …` |
 | Ramas sin work item asociado | `ado boards orphans` |
