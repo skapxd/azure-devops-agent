@@ -1,4 +1,4 @@
-# azure-boards-skill
+# azure-devops-skill
 
 Una [Agent Skill](https://github.com/vercel-labs/skills) que hace que registrar trabajo en **Azure Boards** cueste una frase en vez de cinco minutos en el portal.
 
@@ -9,13 +9,13 @@ Funciona con cualquier agente compatible con el formato de skills: Claude Code, 
 ## Instalación
 
 ```bash
-npx skills add skapxd/azure-boards-skill
+npx skills add skapxd/azure-devops-skill
 ```
 
 Para instalarla solo en algunos agentes:
 
 ```bash
-npx skills add skapxd/azure-boards-skill -a claude-code -a opencode
+npx skills add skapxd/azure-devops-skill -a claude-code -a opencode
 ```
 
 ## Requisitos
@@ -44,7 +44,7 @@ https://<org>.visualstudio.com/<proyecto>/_git/<repo>
 Para comprobar qué detecta en tu repo:
 
 ```bash
-bash skills/azure-boards/scripts/ado-context.sh --check
+bash skills/azure-devops/scripts/ado-context.sh --check
 ```
 
 Los tipos de work item y sus estados también se consultan al proyecto en tiempo real, en vez de asumir una plantilla — así funciona igual con Agile, Scrum, CMMI o un workflow personalizado.
