@@ -1,6 +1,8 @@
 # azure-devops-agent
 
-Azure DevOps desde la terminal, sin configurar nada: la organización y el proyecto salen del `git remote`.
+Lo que `az boards` no hace, para trabajar Azure DevOps desde la terminal.
+
+**Complementario a Azure CLI, no un reemplazo.** Para consultar, actualizar o crear work items sin jerarquía, `az boards` ya lo cubre bien y es lo que debes usar. Este proyecto llena solo los huecos que deja.
 
 El repo entrega dos cosas que se usan por separado:
 
@@ -9,7 +11,7 @@ El repo entrega dos cosas que se usan por separado:
 | **CLI** | `@skapxd/azure-devops-agent`, compilado y publicado en npm | `pnpx @skapxd/azure-devops-agent <comando>` |
 | **Skill** | Instrucciones para agentes de código (Claude Code, OpenCode, Codex, Cursor…) | `npx skills add skapxd/azure-devops-agent` |
 
-El CLI sirve solo, sin agente. La skill le enseña a tu agente **cuándo** usarlo — que es la parte difícil: el tablero no se desactualiza por ignorancia, sino porque registrar el trabajo compite con escribir código y casi siempre pierde.
+El CLI sirve solo, sin agente. La skill le enseña a tu agente **cuándo** registrar trabajo y **cómo** combinar `az boards` con este CLI — que es la parte difícil: el tablero no se desactualiza por ignorancia, sino porque registrar el trabajo compite con escribir código y casi siempre pierde.
 
 ## Instalación
 
@@ -54,30 +56,24 @@ Ese rodeo existe porque en macOS y Linux un shell no interactivo no carga `.zshr
 
 ## Comandos
 
+Son cuatro, y cada uno existe porque `az` no lo cubre:
+
 ```
-ado context [--json]              organización, proyecto y repositorio
-ado check                         valida el token y muestra la identidad
-
-ado boards types                  tipos de work item del proyecto
-ado boards states <tipo>          estados reales del workflow de ese tipo
-ado boards iteration              ruta del sprint en curso
-ado boards search <texto>         busca por título, para no duplicar tickets
-ado boards show <id>              un work item con su padre y sus hijos
-ado boards list --assignee <mail> trabajo abierto de esa persona
-ado boards orphans                ramas locales sin work item asociado
-
-ado boards create --type <tipo> --title <texto>
-                  [--description <html>] [--parent <id>]
-                  [--assign <correo>] [--iteration <ruta>]
-
-ado boards update <id> [--state <estado>] [--assign <correo>] [--comment <texto>]
+ado context [--json]        organización, proyecto, repositorio e identidad
+ado boards states <tipo>    estados válidos del workflow de ese tipo
+ado boards orphans          ramas locales sin work item asociado
+ado boards create --type <tipo> --title <texto> --parent <id>
+                  [--description <html>] [--assign <correo>] [--iteration <ruta>]
 ```
 
-Tres que resuelven problemas concretos:
+Por qué cada uno:
 
-- **`create --parent`** crea el work item y lo cuelga de su historia en **una sola llamada**. Con la API en dos pasos, un fallo entre medias deja un huérfano que nadie sabe de dónde salió.
-- **`orphans`** lista las ramas que no referencian ningún work item. Es donde más trazabilidad se pierde: una rama sin número nace de un arreglo rápido, se mergea, y no deja rastro.
-- **`states`** consulta el workflow real en vez de asumir la plantilla. Casi todos los proyectos lo tienen personalizado, y usar un estado que no existe falla.
+- **`context`** deriva del `git remote` el `--org` y `--project` que `az` pide en cada comando, más la identidad del token. `az` sabe autodetectar la organización con `--detect`, pero no el proyecto, y no responde "¿con qué cuenta estoy trabajando?" — dato necesario para asignar sin adivinar correos.
+- **`states`** consulta los estados reales del workflow. `az` no los expone, y casi todos los proyectos los tienen personalizados: usar uno que no existe falla.
+- **`orphans`** lista las ramas que no referencian ningún work item. No existe en ningún sitio, y es donde más trazabilidad se pierde.
+- **`create --parent`** crea el work item **ya colgado** de su historia, en una sola llamada. En `az` son dos comandos (`work-item create` y `relation add`), y un fallo entre ambos deja un huérfano que nadie sabe de dónde salió.
+
+Para todo lo demás —consultar, buscar, actualizar, crear sin jerarquía— usa `az boards`.
 
 ## Configuración
 
