@@ -1,6 +1,6 @@
 ---
 name: azure-devops-workflow
-description: Registra y consulta trabajo en Azure DevOps desde la terminal — crea work items y los cuelga de su padre, los asigna, los transiciona y los enlaza con el código, usando az boards y el CLI @skapxd/azure-devops-agent para lo que az no cubre. Úsala siempre que aparezca trabajo sin registrar: una rama sin número de work item, un pendiente que el usuario menciona al pasar, deuda técnica, un TODO que quedará para después, un hallazgo de code review que no se corregirá ahora, o al cerrar algo para dejar el tablero al día. También cuando pregunten qué tienen asignado o en qué va un work item. No esperes a que digan "Azure DevOps" o "work item" — el trabajo se pierde justamente porque nadie se acuerda de nombrarlo.
+description: Registra y consulta trabajo en Azure DevOps desde la terminal — crea work items y los cuelga de su padre, los asigna, los transiciona y los enlaza con el código, usando az boards y el CLI @skapxd/azure-devops-agent para lo que az no cubre. Úsala siempre que aparezca trabajo sin registrar — una rama sin número de work item, un pendiente que el usuario menciona al pasar, deuda técnica, un TODO que quedará para después, un hallazgo de code review que no se corregirá ahora, o al cerrar algo para dejar el tablero al día. También cuando pregunten qué tienen asignado o en qué va un work item. No esperes a que digan "Azure DevOps" o "work item" — el trabajo se pierde justamente porque nadie se acuerda de nombrarlo.
 ---
 
 # Trazabilidad en Azure DevOps
