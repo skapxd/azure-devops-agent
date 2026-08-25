@@ -61,7 +61,8 @@ export function parseRemote(url: string): AdoContext | null {
     if (encodingInvalido) return null;
 
     const [org, project, repo] = decodificados.value;
-    if (!org || !project || !repo) continue;
+    const algunSegmentoQuedoVacio = !org || !project || !repo;
+    if (algunSegmentoQuedoVacio) continue;
 
     const segmentosSonSeguros = [org, project, repo].every((segmento) =>
       SEGMENTO_VALIDO.test(segmento),
