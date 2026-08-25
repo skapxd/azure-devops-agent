@@ -91,7 +91,12 @@ npx ~/dev/azure-devops-agent branches unlinked
 
 ### Formato de salida
 
-El predeterminado es **markdown**, porque el lector principal de este CLI es un agente de código y el markdown le da estructura semántica —tablas, listas ordenadas, énfasis— que el texto alineado con espacios no tiene.
+El predeterminado depende de quién va a leer:
+
+- **En la terminal** → `text`. Lo lee una persona, y ahí los `**` y los backticks solo son ruido: nada los renderiza.
+- **Redirigido a otro proceso** → `markdown`. Lo consume un programa —un agente de código, casi siempre— y la estructura semántica es justo lo que le ayuda a interpretarlo.
+
+`--format` explícito manda sobre esa decisión.
 
 ```console
 $ npx @skapxd/azure-devops-agent branches unlinked

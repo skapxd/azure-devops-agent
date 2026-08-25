@@ -14,7 +14,8 @@ import {
   EJEMPLO_STATES,
 } from "@/help-examples.js";
 import type { Formato } from "@/format/formato.js";
-import { FORMATOS, FORMATO_POR_DEFECTO } from "@/format/formato.js";
+import { FORMATOS } from "@/format/formato.js";
+import { formatoPorDefecto } from "@/format/formato-por-defecto.js";
 import { parseFormato } from "@/format/parse-formato.js";
 
 /**
@@ -60,8 +61,9 @@ program
   )
   .option(
     "--format <formato>",
-    `formato de salida: ${FORMATOS.join(", ")}`,
-    FORMATO_POR_DEFECTO,
+    `formato de salida: ${FORMATOS.join(", ")}\n` +
+      "(por defecto: text en la terminal, markdown al redirigir a otro proceso)",
+    formatoPorDefecto(process.stdout.isTTY === true),
   )
   .version("0.1.0")
   .addHelpText("after", EJEMPLO_GENERAL);

@@ -35,7 +35,7 @@ Se ejecuta sin instalar nada:
 pnpx @skapxd/azure-devops-agent <comando>
 ```
 
-Todos aceptan `--format <markdown|json|text>`. El predeterminado es **markdown**, pensado para que lo leas tú; usa `--format json` cuando necesites extraer un campo concreto para pasárselo a `az`.
+Todos aceptan `--format <markdown|json|text>`. Cuando los ejecutas tú, la salida llega en markdown porque va por una tubería, no a una terminal — así que puedes leerla y citarla directamente. Usa `--format json` cuando necesites extraer un campo concreto.
 
 Si algo se puede hacer con `az boards`, hazlo con `az boards`.
 
