@@ -32,8 +32,6 @@ jobs:
       - name: Setup pnpm
         # pnpm/action-setup@v6
         uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
-        with:
-          version: 11.12.0
 
       - name: Use Node.js ${{ matrix.node-version }}
         # actions/setup-node@v6
@@ -71,8 +69,6 @@ jobs:
       - name: Setup pnpm
         # pnpm/action-setup@v6
         uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
-        with:
-          version: 11.12.0
 
       - name: Use Node.js 22.x
         # actions/setup-node@v6
@@ -107,8 +103,6 @@ jobs:
       - name: Setup pnpm
         # pnpm/action-setup@v6
         uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
-        with:
-          version: 11.12.0
 
       # SIN `registry-url`: esa opcion hace que setup-node escriba un .npmrc con
       # `_authToken=${NODE_AUTH_TOKEN}` y exporte un NODE_AUTH_TOKEN placeholder
