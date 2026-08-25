@@ -84,8 +84,11 @@ Quién hace qué:
 Para reencontrar tu trabajo en un tablero heredado:
   Todo lo que se crea o modifica desde aquí queda con la etiqueta agent.
     $ az boards query -o table --wiql "SELECT [System.Id], [System.Title] \
-        FROM WorkItems WHERE [System.TeamProject] = @project \
-        AND [System.Tags] CONTAINS WORDS 'agent'"
+        FROM WorkItems WHERE [System.TeamProject] = 'MiProyecto' \
+        AND [System.Tags] CONTAINS 'agent'"
+
+  El nombre del proyecto va literal: la macro @project no resuelve en
+  az boards query y devuelve cero filas sin dar ningún error.
 `;
 
 export const EJEMPLO_TAG = `

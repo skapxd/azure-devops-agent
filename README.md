@@ -18,7 +18,7 @@ El CLI sirve solo, sin agente. La skill le enseña a tu agente **cuándo** regis
 **El CLI** no requiere instalación:
 
 ```bash
-pnpx @skapxd/azure-devops-agent check
+pnpx @skapxd/azure-devops-agent branches unlinked
 ```
 
 **La skill**, en todos tus agentes a la vez:
@@ -56,7 +56,7 @@ Ese rodeo existe porque en macOS y Linux un shell no interactivo no carga `.zshr
 
 ## Comandos
 
-Son tres, y cada uno existe porque `az` no lo cubre:
+Son cuatro, y cada uno existe porque `az` no lo cubre:
 
 ```bash
 # los estados por los que puede pasar un work item de ese tipo
@@ -69,7 +69,11 @@ npx @skapxd/azure-devops-agent branches unlinked
 npx @skapxd/azure-devops-agent boards create \
   --type Task --parent 11603 --title "Eliminar el índice único"
 
-# --format <markdown|json|text> en cualquier comando (por defecto: markdown)
+# deja la etiqueta agent sin borrar las que el work item ya tenga
+npx @skapxd/azure-devops-agent boards tag 11604 11605
+
+# --format <markdown|json|text> en cualquier comando
+# (por defecto: text en la terminal, markdown al redirigir)
 ```
 
 ## Desarrollo
@@ -127,16 +131,33 @@ Por qué cada uno:
 
 - **`states`** consulta los estados reales del workflow. `az` no los expone, y casi todos los proyectos los tienen personalizados: usar uno que no existe falla.
 - **`branches unlinked`** lista las ramas que no referencian ningún work item. No existe en ningún sitio, y es donde más trazabilidad se pierde. Va en su propio grupo porque no consulta el tablero: mira tu git local.
+- **`boards tag`** añade una etiqueta **sin borrar** las que el work item ya tenga. En `az` la única vía es `--fields "System.Tags=..."`, que asigna el campo entero y borra el resto sin avisar.
 - **`create --parent`** crea el work item **ya colgado** de su padre, en una sola llamada. En `az` son dos comandos (`work-item create` y `relation add`), y un fallo entre ambos deja un huérfano que nadie sabe de dónde salió.
 
 Para todo lo demás —consultar, buscar, actualizar, crear sin jerarquía— usa `az boards`.
 
+## La etiqueta `agent`
+
+Todo lo que este CLI crea o modifica queda etiquetado con `agent`. En un tablero heredado con cientos de tareas asignadas y sin empezar, es lo que permite ver solo las que estás gestionando:
+
+```bash
+az boards query -o table --wiql "SELECT [System.Id], [System.Title], [System.State] \
+FROM WorkItems WHERE [System.TeamProject] = 'MiProyecto' \
+AND [System.Tags] CONTAINS 'agent' AND [System.State] <> 'Done'"
+```
+
+Dos detalles de WIQL que cuestan tiempo descubrir, ambos verificados contra un tablero real:
+
+- **El nombre del proyecto va literal.** La macro `@project` no resuelve en `az boards query` —ni pasando `--project`— y la consulta devuelve **cero filas sin dar ningún error**.
+- **`CONTAINS` sobre `System.Tags` compara la etiqueta entera**, pese al nombre: buscar `prioridad` no encuentra `prioridad 24`. Es lo más parecido a igualdad que hay, porque Azure DevOps rechaza `=`, `EVER` e `IN` sobre ese campo.
+
 ## Configuración
 
-Ninguna. Se soportan los tres formatos de remote de Azure DevOps:
+Ninguna. Se soportan los cuatro formatos de remote de Azure DevOps:
 
 ```
 git@ssh.dev.azure.com:v3/<org>/<proyecto>/<repo>
+<org>@vs-ssh.visualstudio.com:v3/<org>/<proyecto>/<repo>
 https://<org>@dev.azure.com/<org>/<proyecto>/_git/<repo>
 https://<org>.visualstudio.com/<proyecto>/_git/<repo>
 ```
