@@ -1,0 +1,38 @@
+name: Publicar en npm
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write # necesario para la procedencia (provenance)
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # prepublishOnly ya ejecuta check y build, pero se hace explícito para que
+      # un fallo se vea en su propio paso del log.
+      - run: pnpm run check
+      - run: pnpm run build
+
+      # --provenance firma el paquete con la identidad de este workflow, así que
+      # quien lo instala puede verificar de qué commit salió. Importa en un
+      # paquete que maneja tokens: sin esto, una cuenta comprometida basta para
+      # publicar cualquier cosa bajo este nombre.
+      - run: pnpm publish --access public --provenance --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

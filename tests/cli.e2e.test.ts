@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { after, before, describe, test } from "node:test";
 
-import { ejecutarCli } from "./ejecutar-cli.js";
-import { repoDePrueba } from "./repo-de-prueba.js";
+import { ejecutarCli } from "./helpers/ejecutar-cli.js";
+import { repoDePrueba } from "./helpers/repo-de-prueba.js";
 
 const REMOTE_ADO = "git@ssh.dev.azure.com:v3/MiOrg/Mi%20Proyecto/MiRepo";
 

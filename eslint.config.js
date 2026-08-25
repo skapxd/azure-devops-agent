@@ -13,7 +13,13 @@ import skapxd from "@skapxd/lint-agent";
 export default [
   {
     // Nada que no sea código fuente propio.
-    ignores: ["node_modules/**", "dist/**", "coverage/**"],
+    //
+    // tests/helpers queda fuera a propósito: son utilidades de prueba que
+    // necesitan justo lo que las reglas prohíben —sustituir globales,
+    // restaurarlos pase lo que pase y relanzar la aserción original— y forzarlas
+    // al modelo de Result las volvería más difíciles de leer sin ganar nada.
+    // Los .test.ts sí se revisan.
+    ignores: ["node_modules/**", "dist/**", "coverage/**", "tests/helpers/**"],
   },
 
   // Preset base: el mismo que el CLI autodetecta para este proyecto.
