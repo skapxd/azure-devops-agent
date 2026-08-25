@@ -1,4 +1,6 @@
 import { execFileSync } from "node:child_process";
+
+import { Result, trySafe } from "@skapxd/result";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -31,19 +33,26 @@ export function ejecutarCli(args: readonly string[], cwd: string): SalidaCli {
   delete entorno["AZURE_DEVOPS_EXT_PAT"];
   entorno["HOME"] = mkdtempSync(join(tmpdir(), "ado-e2e-home-"));
 
-  try {
-    const stdout = execFileSync("node", [join(RAIZ, "dist", "cli.js"), ...args], {
+  const ejecucion = trySafe(() =>
+    execFileSync("node", [join(RAIZ, "dist", "cli.js"), ...args], {
       cwd,
       encoding: "utf8",
       env: entorno,
-    });
-    return { codigo: 0, stdout, stderr: "" };
-  } catch (error) {
-    const e = error as { status?: number; stdout?: string; stderr?: string };
-    return {
-      codigo: e.status ?? 1,
-      stdout: e.stdout ?? "",
-      stderr: e.stderr ?? "",
-    };
-  }
+    }),
+  );
+
+  const salioOk = Result.isOk(ejecucion);
+  if (salioOk) return { codigo: 0, stdout: ejecucion.value, stderr: "" };
+
+  // Un exit distinto de 0 llega como excepción con la salida ya capturada.
+  const fallo = ejecucion.error as {
+    status?: number;
+    stdout?: string;
+    stderr?: string;
+  };
+  return {
+    codigo: fallo.status ?? 1,
+    stdout: fallo.stdout ?? "",
+    stderr: fallo.stderr ?? "",
+  };
 }
