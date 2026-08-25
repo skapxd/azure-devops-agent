@@ -1,4 +1,4 @@
-import { esRamaBase } from "@/commands/boards/es-rama-base.js";
+import { esRamaBase } from "@/commands/branches/es-rama-base.js";
 
 /**
  * Reconoce un número de work item en el nombre de la rama, en cualquier

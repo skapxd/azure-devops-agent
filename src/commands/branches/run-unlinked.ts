@@ -2,14 +2,14 @@ import { execFileSync } from "node:child_process";
 
 import { Result, trySafe } from "@skapxd/result";
 
-import { filtrarRamasSinWorkItem } from "@/commands/boards/filtrar-ramas-sin-work-item.js";
-import { ramaPorDefecto } from "@/commands/boards/rama-por-defecto.js";
+import { filtrarRamasSinWorkItem } from "@/commands/branches/filtrar-ramas-sin-work-item.js";
+import { ramaPorDefecto } from "@/commands/branches/rama-por-defecto.js";
 import type { AdoError } from "@/errors/ado-error.js";
 import type { Formato } from "@/format/formato.js";
 import { renderRamasHuerfanas } from "@/format/render-ramas-huerfanas.js";
 
 /**
- * ## runOrphans
+ * ## runUnlinked
  *
  * Lista las ramas locales que no referencian ningún work item.
  *
@@ -21,10 +21,10 @@ import { renderRamasHuerfanas } from "@/format/render-ramas-huerfanas.js";
  * remote: nunca tienen ticket, y reportarlas taparía las que sí importan.
  *
  * ```bash
- * npx @skapxd/azure-devops-agent boards orphans
+ * npx @skapxd/azure-devops-agent branches unlinked
  * ```
  */
-export function runOrphans(formato: Formato): Result<void, AdoError> {
+export function runUnlinked(formato: Formato): Result<void, AdoError> {
   const ramas = trySafe(() =>
     execFileSync("git", ["branch", "--format=%(refname:short)"], {
       encoding: "utf8",

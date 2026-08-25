@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { esRamaBase } from "@/commands/boards/es-rama-base.js";
-import { filtrarRamasSinWorkItem } from "@/commands/boards/filtrar-ramas-sin-work-item.js";
+import { esRamaBase } from "@/commands/branches/es-rama-base.js";
+import { filtrarRamasSinWorkItem } from "@/commands/branches/filtrar-ramas-sin-work-item.js";
 
 test("las ramas base no cuentan como trabajo sin registrar", () => {
   // El caso que motivó esto: un repo cuyas únicas ramas son dev y main.

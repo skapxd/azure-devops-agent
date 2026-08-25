@@ -3,14 +3,14 @@ import { Result } from "@skapxd/result";
 import { Command } from "commander";
 
 import { runCreate } from "@/commands/boards/run-create.js";
-import { runOrphans } from "@/commands/boards/run-orphans.js";
+import { runUnlinked } from "@/commands/branches/run-unlinked.js";
 import { runStates } from "@/commands/boards/run-states.js";
 import type { AdoError } from "@/errors/ado-error.js";
 import { describeAdoError } from "@/errors/describe-ado-error.js";
 import {
   EJEMPLO_CREATE,
   EJEMPLO_GENERAL,
-  EJEMPLO_ORPHANS,
+  EJEMPLO_UNLINKED,
   EJEMPLO_STATES,
 } from "@/help-examples.js";
 import type { Formato } from "@/format/formato.js";
@@ -27,7 +27,7 @@ import { parseFormato } from "@/format/parse-formato.js";
  * solo el mensaje: nunca el token ni la cabecera de autenticación.
  *
  * ```ts
- * await rendir((f) => runOrphans(f));   // imprime y sale con 1 si hubo error
+ * await rendir((f) => runUnlinked(f));   // imprime y sale con 1 si hubo error
  * ```
  */
 async function rendir(
@@ -78,14 +78,6 @@ boards
   });
 
 boards
-  .command("orphans")
-  .description("qué ramas tuyas no están registradas en el tablero")
-  .addHelpText("after", EJEMPLO_ORPHANS)
-  .action(async () => {
-    await rendir((formato) => runOrphans(formato));
-  });
-
-boards
   .command("create")
   .requiredOption("--type <tipo>", "Task, Bug… (ver: az boards work-item type list)")
   .requiredOption("--title <texto>", "qué pasa, no dónde: se lee en una lista de cientos")
@@ -107,5 +99,17 @@ boards
       await rendir(async (formato) => runCreate(opciones, formato));
     },
   );
+
+const branches = program
+  .command("branches")
+  .description("relación entre tus ramas de git y el tablero");
+
+branches
+  .command("unlinked")
+  .description("qué ramas tuyas no referencian ningún work item")
+  .addHelpText("after", EJEMPLO_UNLINKED)
+  .action(async () => {
+    await rendir((formato) => runUnlinked(formato));
+  });
 
 await program.parseAsync();

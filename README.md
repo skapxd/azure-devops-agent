@@ -62,8 +62,8 @@ Son tres, y cada uno existe porque `az` no lo cubre:
 # los estados por los que puede pasar un work item de ese tipo
 npx @skapxd/azure-devops-agent boards states "Product Backlog Item"
 
-# qué ramas tuyas no están registradas en el tablero
-npx @skapxd/azure-devops-agent boards orphans
+# qué ramas tuyas no referencian ningún work item
+npx @skapxd/azure-devops-agent branches unlinked
 
 # crea una tarea ya colgada de su historia, en una sola llamada
 npx @skapxd/azure-devops-agent boards create \
@@ -86,7 +86,7 @@ Para probar un cambio sin publicar, `npx` acepta la ruta local. Ejecútalo
 remote`:
 
 ```bash
-npx ~/dev/azure-devops-agent boards orphans
+npx ~/dev/azure-devops-agent branches unlinked
 ```
 
 ### Formato de salida
@@ -94,7 +94,7 @@ npx ~/dev/azure-devops-agent boards orphans
 El predeterminado es **markdown**, porque el lector principal de este CLI es un agente de código y el markdown le da estructura semántica —tablas, listas ordenadas, énfasis— que el texto alineado con espacios no tiene.
 
 ```console
-$ npx @skapxd/azure-devops-agent boards orphans
+$ npx @skapxd/azure-devops-agent branches unlinked
 **2 ramas sin work item asociado:**
 
 - `fix/ajuste-rapido`
@@ -106,7 +106,7 @@ $ npx @skapxd/azure-devops-agent boards orphans
 Por qué cada uno:
 
 - **`states`** consulta los estados reales del workflow. `az` no los expone, y casi todos los proyectos los tienen personalizados: usar uno que no existe falla.
-- **`orphans`** lista las ramas que no referencian ningún work item. No existe en ningún sitio, y es donde más trazabilidad se pierde.
+- **`branches unlinked`** lista las ramas que no referencian ningún work item. No existe en ningún sitio, y es donde más trazabilidad se pierde. Va en su propio grupo porque no consulta el tablero: mira tu git local.
 - **`create --parent`** crea el work item **ya colgado** de su historia, en una sola llamada. En `az` son dos comandos (`work-item create` y `relation add`), y un fallo entre ambos deja un huérfano que nadie sabe de dónde salió.
 
 Para todo lo demás —consultar, buscar, actualizar, crear sin jerarquía— usa `az boards`.

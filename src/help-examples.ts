@@ -26,13 +26,13 @@ Ejemplo:
   New → Approved → In Progress → Por pasar a QA → Test QA → Done
 `;
 
-export const EJEMPLO_ORPHANS = `
+export const EJEMPLO_UNLINKED = `
 Para qué sirve:
   Encontrar el trabajo que se está perdiendo. Una rama sin número de historia
   nace de un arreglo rápido, se mergea, y no deja rastro en el tablero.
 
 Ejemplo:
-  $ npx @skapxd/azure-devops-agent boards orphans
+  $ npx @skapxd/azure-devops-agent branches unlinked
 
   **2 ramas sin work item asociado:**
 
@@ -74,9 +74,10 @@ Empieza por aquí:
     MiProyecto
 
   Y para ver qué trabajo tuyo no está registrado:
-    $ npx @skapxd/azure-devops-agent boards orphans
+    $ npx @skapxd/azure-devops-agent branches unlinked
 
 Reparto de tareas:
   consultar, buscar, actualizar, crear sin jerarquía   →  az boards
-  estados del workflow, ramas huérfanas, crear con padre  →  ado
+  estados del workflow, crear con padre              →  boards
+  ramas sin work item                                →  branches
 `;
