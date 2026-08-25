@@ -1,50 +1,23 @@
 #!/usr/bin/env node
-import { Result } from "@skapxd/result";
 import { Command } from "commander";
 
 import { runCreate } from "@/commands/boards/run-create.js";
 import { runUnlinked } from "@/commands/branches/run-unlinked.js";
 import { runStates } from "@/commands/boards/run-states.js";
-import type { AdoError } from "@/errors/ado-error.js";
-import { describeAdoError } from "@/errors/describe-ado-error.js";
 import {
   EJEMPLO_CREATE,
   EJEMPLO_GENERAL,
   EJEMPLO_UNLINKED,
   EJEMPLO_STATES,
 } from "@/help-examples.js";
-import type { Formato } from "@/format/formato.js";
 import { FORMATOS } from "@/format/formato.js";
 import { formatoPorDefecto } from "@/format/formato-por-defecto.js";
-import { parseFormato } from "@/format/parse-formato.js";
-
-/**
- * ## rendir
- *
- * Traduce el Result de un comando a la salida del proceso.
- *
- * Los comandos devuelven `Result` en vez de lanzar, así que este es el único
- * punto donde un fallo se convierte en código de salida y mensaje. Se imprime
- * solo el mensaje: nunca el token ni la cabecera de autenticación.
- *
- * ```ts
- * await rendir((f) => runUnlinked(f));   // imprime y sale con 1 si hubo error
- * ```
- */
-async function rendir(
-  operacion: (formato: Formato) => Result<void, AdoError> | Promise<Result<void, AdoError>>,
-): Promise<void> {
-  const elegido = parseFormato(String(program.opts()["format"]));
-  const resultado = Result.isErr(elegido) ? elegido : await operacion(elegido.value);
-
-  const fallo = Result.isErr(resultado);
-  if (!fallo) return;
-
-  console.error(`error: ${describeAdoError(resultado.error)}`);
-  process.exit(1);
-}
+import { rendir } from "@/rendir.js";
 
 const program = new Command();
+
+/** Lo que el usuario pidió en --format, sin validar todavía. */
+const formatoElegido = (): string => String(program.opts()["format"]);
 
 program
   .name("npx @skapxd/azure-devops-agent")
@@ -76,7 +49,7 @@ boards
   .description("los estados por los que puede pasar un work item de ese tipo")
   .addHelpText("after", EJEMPLO_STATES)
   .action(async (tipo: string) => {
-    await rendir(async (formato) => runStates(tipo, formato));
+    await rendir((formato) => runStates(tipo, formato), formatoElegido());
   });
 
 boards
@@ -98,7 +71,7 @@ boards
       assign?: string;
       iteration?: string;
     }) => {
-      await rendir(async (formato) => runCreate(opciones, formato));
+      await rendir((formato) => runCreate(opciones, formato), formatoElegido());
     },
   );
 
@@ -111,7 +84,7 @@ branches
   .description("qué ramas tuyas no referencian ningún work item")
   .addHelpText("after", EJEMPLO_UNLINKED)
   .action(async () => {
-    await rendir((formato) => runUnlinked(formato));
+    await rendir((formato) => runUnlinked(formato), formatoElegido());
   });
 
 await program.parseAsync();
