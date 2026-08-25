@@ -8,10 +8,16 @@ export default defineConfig({
     // los imports de las pruebas no resolverían.
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
+      // Las utilidades de prueba las usan specs repartidas por todo src; sin
+      // alias cada una las alcanzaría con una ristra de "../".
+      "@test": fileURLToPath(new URL("./tests/helpers", import.meta.url)),
     },
   },
   test: {
-    include: ["tests/**/*.test.ts"],
+    // Las pruebas unitarias viven junto a su unidad, en carpeta/index.spec.ts.
+    // En tests/ solo queda lo que no pertenece a un archivo concreto: el e2e
+    // del CLI y la validación de la skill.
+    include: ["src/**/*.spec.ts", "tests/**/*.test.ts"],
     // Sin globals: `describe`, `test` y `expect` se importan. Así el editor y
     // el typecheck saben de dónde salen, y no hace falta declarar tipos sueltos
     // en tsconfig solo para que TypeScript no proteste.

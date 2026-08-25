@@ -8,7 +8,20 @@
 
     // Sin baseUrl: está deprecado y deja de funcionar en TypeScript 7.
     // Los paths con "./" se resuelven relativos a este archivo.
-    "paths": { "@/*": ["./src/*"] },
+    //
+    // Tres alternativas por alias, y el orden importa. Cada unidad de
+    // comportamiento vive en su carpeta junto a su prueba, así que "@/x/y"
+    // puede ser tanto "src/x/y/index.ts" como "src/x/y.ts" —una carpeta o un
+    // archivo suelto de tipos—. Con las dos alternativas se escriben igual y
+    // convertir un archivo en carpeta no obliga a tocar a quien lo importa.
+    //
+    // Esto funciona porque lo que se publica es un bundle: tsup resuelve los
+    // alias al empaquetar y Node nunca ve estas rutas. Si algún día se
+    // publicara sin empaquetar, harían falta las extensiones .js explícitas.
+    "paths": {
+      "@/*": ["./src/*", "./src/*/index.ts", "./src/*.ts"],
+      "@test/*": ["./tests/helpers/*.ts"]
+    },
 
     "noEmit": true,
     "verbatimModuleSyntax": true,

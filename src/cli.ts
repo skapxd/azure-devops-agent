@@ -3,22 +3,22 @@ import { createRequire } from "node:module";
 
 import { Command } from "commander";
 
-import { acumularOpcionRepetible } from "@/acumular-opcion-repetible.js";
-import { ETIQUETA_AGENTE } from "@/commands/boards/etiqueta-agente.js";
-import { runCreate } from "@/commands/boards/run-create.js";
-import { runTag } from "@/commands/boards/run-tag.js";
-import { runUnlinked } from "@/commands/branches/run-unlinked.js";
-import { runStates } from "@/commands/boards/run-states.js";
+import { acumularOpcionRepetible } from "@/acumular-opcion-repetible";
+import { ETIQUETA_AGENTE } from "@/commands/boards/etiqueta-agente";
+import { runCreate } from "@/commands/boards/run-create";
+import { runTag } from "@/commands/boards/run-tag";
+import { runUnlinked } from "@/commands/branches/run-unlinked";
+import { runStates } from "@/commands/boards/run-states";
 import {
   EJEMPLO_CREATE,
   EJEMPLO_GENERAL,
   EJEMPLO_UNLINKED,
   EJEMPLO_STATES,
   EJEMPLO_TAG,
-} from "@/help-examples.js";
-import { FORMATOS } from "@/format/formato.js";
-import { formatoPorDefecto } from "@/format/formato-por-defecto.js";
-import { rendir } from "@/rendir.js";
+} from "@/help-examples";
+import { FORMATOS } from "@/format/formato";
+import { formatoPorDefecto } from "@/format/formato-por-defecto";
+import { rendir } from "@/rendir";
 
 // La version se lee del package.json publicado en vez de repetirla aqui: escrita
 // a mano se queda atras en el primer release que alguien no recuerde tocarla, y
