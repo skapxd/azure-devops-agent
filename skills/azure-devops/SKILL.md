@@ -167,6 +167,11 @@ especialmente dañino: "no encontré nada" te lleva a crear el duplicado. El
 nombre lo da `az repos list --query "[0].project.name" -o tsv`. Las demás
 macros (`@today`, `@me`) sí funcionan.
 
+**Y `az boards query` corta en 1000 filas.** Una consulta truncada se lee
+exactamente igual que una completa, así que en un tablero grande no concluyas
+"esto es todo" sin acotar: filtra por fecha, por iteración o por tipo hasta
+bajar del tope. Si una consulta devuelve justo 1000, casi seguro hay más.
+
 Estampar es modificar: si el work item no es parte de lo que el usuario te acaba
 de pedir, pregunta antes. Y nunca quites etiquetas que puso otra persona; no
 sabes qué consulta guardada dependía de ellas.
