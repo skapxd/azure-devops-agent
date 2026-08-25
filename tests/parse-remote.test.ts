@@ -47,3 +47,36 @@ test("la URL de organización queda escapada", () => {
   assert.ok(contexto);
   assert.equal(contexto.orgUrl, "https://dev.azure.com/Mi%20Org");
 });
+
+test("decodifica los segmentos percent-encoded del remote", () => {
+  // Caso real: un proyecto con espacios y acentos llega encoded en el remote.
+  const contexto = parseRemote(
+    "git@ssh.dev.azure.com:v3/MiOrg/Onboarding%20de%20Pr%C3%A9stamos/MiRepo",
+  );
+  assert.ok(contexto);
+  assert.equal(contexto.project, "Onboarding de Préstamos");
+});
+
+test("no produce doble encoding en la URL de organización", () => {
+  const contexto = parseRemote("git@ssh.dev.azure.com:v3/Mi%20Org/Proy/Repo");
+  assert.ok(contexto);
+  assert.equal(contexto.org, "Mi Org");
+  // Una sola vuelta de encoding: %2520 significaría que se codificó dos veces.
+  assert.equal(contexto.orgUrl, "https://dev.azure.com/Mi%20Org");
+});
+
+test("rechaza un percent-encoding malformado en vez de reventar", () => {
+  assert.equal(parseRemote("git@ssh.dev.azure.com:v3/Org%zz/Proy/Repo"), null);
+});
+
+test("reconoce el SSH del dominio antiguo (vs-ssh.visualstudio.com)", () => {
+  // Formato real de organizaciones creadas antes de dev.azure.com.
+  assert.equal(
+    resumen("MiOrg@vs-ssh.visualstudio.com:v3/MiOrg/Mi%20Proyecto/MiRepo"),
+    "MiOrg/Mi Proyecto/MiRepo",
+  );
+  assert.equal(
+    resumen("vs-ssh.visualstudio.com:v3/MiOrg/Proy/Repo"),
+    "MiOrg/Proy/Repo",
+  );
+});

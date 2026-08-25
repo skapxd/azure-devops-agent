@@ -26,12 +26,18 @@ export async function runContext(formato: Formato): Promise<Result<void, AdoErro
   if (Result.isErr(contexto)) return contexto;
   const ctx = contexto.value;
 
+  // La identidad es lo único que necesita red y token. Si falla —PAT de otra
+  // organización, sin permisos, sin conexión— el resto del contexto sigue
+  // siendo válido: sale del git remote. Reventar entero por un dato accesorio
+  // dejaría el comando inservible justo donde más ayuda, que es un repo ajeno.
   const perfil = await requestAdo(
     `https://vssps.dev.azure.com/${encodeURIComponent(ctx.org)}/_apis/profile/profiles/me?api-version=7.0`,
   );
-  if (Result.isErr(perfil)) return perfil;
+  const identidadNoDisponible = Result.isErr(perfil);
+  const identidad = identidadNoDisponible
+    ? "(no disponible — el token no vale para esta organización)"
+    : ((perfil.value as { emailAddress?: string }).emailAddress ?? "desconocida");
 
-  const { emailAddress } = perfil.value as { emailAddress?: string };
-  console.log(renderContexto(ctx, emailAddress ?? "desconocida", formato));
+  console.log(renderContexto(ctx, identidad, formato));
   return Result.ok(undefined);
 }
