@@ -38,6 +38,10 @@ export function ejecutarCli(args: readonly string[], cwd: string): SalidaCli {
       cwd,
       encoding: "utf8",
       env: entorno,
+      // execFileSync deja pasar stderr al proceso padre salvo que se pida
+      // explicitamente. Sin esto, cada prueba que comprueba un error imprime su
+      // mensaje en la salida del runner y parece que algo fallo.
+      stdio: ["pipe", "pipe", "pipe"],
     }),
   );
 

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { after, before, describe, test } from "node:test";
+import { afterAll, beforeAll, describe, test } from "vitest";
 
 import { ejecutarCli } from "./helpers/ejecutar-cli.js";
 import { repoDePrueba } from "./helpers/repo-de-prueba.js";
@@ -10,13 +10,13 @@ const REMOTE_ADO = "git@ssh.dev.azure.com:v3/MiOrg/Mi%20Proyecto/MiRepo";
 describe("branches unlinked", () => {
   let repo: { ruta: string; limpiar: () => void };
 
-  before(() => {
+  beforeAll(() => {
     repo = repoDePrueba(
       ["main", "dev", "feat/1234-con-ticket", "fix/sin-ticket", "back/n-a/otra"],
       REMOTE_ADO,
     );
   });
-  after(() => repo.limpiar());
+  afterAll(() => repo.limpiar());
 
   test("lista solo las ramas de trabajo sin ticket", () => {
     const { codigo, stdout } = ejecutarCli(["branches", "unlinked"], repo.ruta);
@@ -59,10 +59,10 @@ describe("branches unlinked", () => {
 
 describe("errores de uso", () => {
   let repo: { ruta: string; limpiar: () => void };
-  before(() => {
+  beforeAll(() => {
     repo = repoDePrueba(["main"], REMOTE_ADO);
   });
-  after(() => repo.limpiar());
+  afterAll(() => repo.limpiar());
 
   test("un formato desconocido falla con exit 1 y lo dice", () => {
     const { codigo, stderr } = ejecutarCli(
@@ -102,10 +102,10 @@ describe("errores de uso", () => {
 
 describe("fuera de un repositorio de Azure DevOps", () => {
   let repo: { ruta: string; limpiar: () => void };
-  before(() => {
+  beforeAll(() => {
     repo = repoDePrueba(["main"], "git@github.com:usuario/repo.git");
   });
-  after(() => repo.limpiar());
+  afterAll(() => repo.limpiar());
 
   test("branches unlinked funciona igual: solo mira git local", () => {
     const { codigo } = ejecutarCli(["branches", "unlinked"], repo.ruta);
@@ -121,10 +121,10 @@ describe("fuera de un repositorio de Azure DevOps", () => {
 
 describe("ayuda", () => {
   let repo: { ruta: string; limpiar: () => void };
-  before(() => {
+  beforeAll(() => {
     repo = repoDePrueba(["main"], REMOTE_ADO);
   });
-  after(() => repo.limpiar());
+  afterAll(() => repo.limpiar());
 
   test("la ayuda general lista los dos grupos de comandos", () => {
     const { stdout } = ejecutarCli(["--help"], repo.ruta);

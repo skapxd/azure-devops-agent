@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
+import { test } from "vitest";
 
 import { esRamaBase } from "@/commands/branches/es-rama-base.js";
 import { filtrarRamasSinWorkItem } from "@/commands/branches/filtrar-ramas-sin-work-item.js";

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
+import { test } from "vitest";
 
 import { fetchJson } from "@/api/fetch-json.js";
 import { sendPatch } from "@/api/send-patch.js";

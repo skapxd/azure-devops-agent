@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
+import { test } from "vitest";
 
 import { combinarEtiquetas } from "@/commands/boards/combinar-etiquetas.js";
 import { separarEtiquetas } from "@/commands/boards/separar-etiquetas.js";

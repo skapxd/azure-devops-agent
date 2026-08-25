@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
+import { test } from "vitest";
 
 import { renderRamasSinEnlazar } from "@/commands/branches/render-ramas-sin-enlazar.js";
 

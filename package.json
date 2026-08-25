@@ -40,8 +40,9 @@
     "lint": "eslint src tests",
     "lint:fix": "eslint src tests --fix",
     "security:audit": "pnpm audit --audit-level low",
-    "test": "pnpm run build && tsx --test \"tests/**/*.test.ts\"",
-    "typecheck": "tsc --noEmit"
+    "test": "pnpm run build && vitest run",
+    "typecheck": "tsc --noEmit",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@skapxd/result": "^2.0.1",
@@ -53,9 +54,9 @@
     "@types/node": "^22.10.2",
     "eslint": "^10.9.0",
     "tsup": "^8.5.1",
-    "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.67.0",
+    "vitest": "^4.1.11",
     "yaml": "^2.9.0"
   }
 }

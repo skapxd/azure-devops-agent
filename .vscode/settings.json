@@ -10,6 +10,11 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
 
+  // El explorador de pruebas usa el vitest del proyecto, no uno global, para que
+  // el editor corra exactamente lo mismo que `pnpm test`.
+  "vitest.nodeExecutable": "node",
+  "vitest.rootConfig": "./vitest.config.ts",
+
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   }

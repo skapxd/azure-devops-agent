@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
+import { test } from "vitest";
 
 import { formatoPorDefecto } from "@/format/formato-por-defecto.js";
 import { parseFormato } from "@/format/parse-formato.js";
