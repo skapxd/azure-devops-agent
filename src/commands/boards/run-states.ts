@@ -17,7 +17,7 @@ import { renderEstados } from "@/format/render-estados.js";
  * desordena el tablero de todos.
  *
  * ```bash
- * ado boards states "Product Backlog Item"
+ * npx @skapxd/azure-devops-agent boards states "Product Backlog Item"
  * ```
  */
 export async function runStates(

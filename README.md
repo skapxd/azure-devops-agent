@@ -72,30 +72,22 @@ npx @skapxd/azure-devops-agent boards create \
 # --format <markdown|json|text> en cualquier comando (por defecto: markdown)
 ```
 
-Si lo usas a diario, instalarlo te deja el atajo `ado`:
-
-```bash
-pnpm add -g @skapxd/azure-devops-agent
-ado boards orphans
-```
-
 ## Desarrollo
 
 ```bash
 pnpm install
-pnpm check              # tipos estrictos + lint + pruebas
-pnpm build              # compila a dist/
-pnpm watch              # recompila al guardar
-
-pnpm link               # deja `ado` disponible en todo el sistema
-pnpm unlink             # lo quita
+pnpm check     # tipos estrictos + lint + pruebas
+pnpm build     # compila a dist/
+pnpm watch     # recompila al guardar
 ```
 
-Para probar un cambio, `pnpm link` una vez y luego `ado <comando>` desde
-cualquier repositorio. Los scripts `dev` y `start` ejecutan el CLI, pero solo
-sirven dentro de este proyecto: el comando necesita correr **dentro del repo que
-quieres consultar**, porque saca la organización y el proyecto de su `git
-remote`.
+Para probar un cambio sin publicar, `npx` acepta la ruta local. Ejecútalo
+**dentro del repo que quieras consultar**, porque el proyecto sale de su `git
+remote`:
+
+```bash
+npx ~/dev/azure-devops-agent boards orphans
+```
 
 ### Formato de salida
 

@@ -17,7 +17,7 @@ import { renderRamasHuerfanas } from "@/format/render-ramas-huerfanas.js";
  * barata de recuperar esa trazabilidad antes de que se olvide del todo.
  *
  * ```bash
- * ado boards orphans
+ * npx @skapxd/azure-devops-agent boards orphans
  * ```
  */
 export function runOrphans(formato: Formato): Result<void, AdoError> {

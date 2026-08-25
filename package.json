@@ -11,15 +11,11 @@
   "scripts": {
     "build": "tsup",
     "check": "pnpm run typecheck && pnpm run lint && pnpm run test",
-    "dev": "tsx src/cli.ts",
-    "link": "pnpm run build && npm link",
     "lint": "eslint src tests",
     "lint:fix": "eslint src tests --fix",
     "prepublishOnly": "pnpm run check && pnpm run build",
-    "start": "node dist/cli.js",
     "test": "tsx --test \"tests/**/*.test.ts\"",
     "typecheck": "tsc --noEmit",
-    "unlink": "npm unlink -g @skapxd/azure-devops-agent",
     "watch": "tsup --watch"
   },
   "devDependencies": {
@@ -38,7 +34,6 @@
     "ts-pattern": "^5.9.0"
   },
   "bin": {
-    "ado": "./dist/cli.js",
     "azure-devops-agent": "./dist/cli.js"
   },
   "files": [
