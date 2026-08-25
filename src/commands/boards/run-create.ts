@@ -1,9 +1,9 @@
 import { Result } from "@skapxd/result";
 
-import type { OperacionPatch } from "@/api/send-ado.js";
-import { sendAdo } from "@/api/send-ado.js";
+import type { OperacionPatch } from "@/api/send-patch.js";
+import { sendPatch } from "@/api/send-patch.js";
 import { locateRepo } from "@/repo/locate-repo.js";
-import type { AdoError } from "@/errors/ado-error.js";
+import type { CliError } from "@/errors/cli-error.js";
 import type { Formato } from "@/format/formato.js";
 import { renderWorkItemCreado } from "@/commands/boards/render-work-item-creado.js";
 import type { CreateOptions } from "@/commands/boards/create-options.js";
@@ -25,7 +25,7 @@ import type { CreateOptions } from "@/commands/boards/create-options.js";
 export async function runCreate(
   opciones: CreateOptions,
   formato: Formato,
-): Promise<Result<void, AdoError>> {
+): Promise<Result<void, CliError>> {
   const repo = locateRepo();
   if (Result.isErr(repo)) return repo;
   const ctx = repo.value;
@@ -65,7 +65,7 @@ export async function runCreate(
     },
   });
 
-  const creado = await sendAdo(
+  const creado = await sendPatch(
     `${ctx.orgUrl}/${encodeURIComponent(ctx.project)}/_apis/wit/workitems/$${encodeURIComponent(opciones.type)}?api-version=7.0`,
     operaciones,
     "POST",

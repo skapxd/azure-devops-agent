@@ -1,26 +1,26 @@
 import { Result, trySafe } from "@skapxd/result";
 
 import { loadPat } from "@/auth/load-pat.js";
-import type { AdoError } from "@/errors/ado-error.js";
+import type { CliError } from "@/errors/cli-error.js";
 
 const NO_AUTORIZADO = 401;
 /** Azure DevOps responde 203 con el HTML de login cuando el token no sirve. */
 const REDIRIGIDO_A_LOGIN = 203;
 
 /**
- * ## requestAdo
+ * ## fetchJson
  *
- * Lectura contra la API REST de Azure DevOps.
+ * Lee de la API de Azure DevOps y devuelve el JSON ya parseado.
  *
  * El token solo viaja en la cabecera Authorization: nunca por argumentos (argv
  * es visible para cualquier proceso), nunca a disco y nunca a la salida.
  *
  * ```ts
- * const r = await requestAdo(`${orgUrl}/_apis/wit/workitems/11603?api-version=7.0`);
+ * const r = await fetchJson(`${orgUrl}/_apis/wit/workitems/11603?api-version=7.0`);
  * // Ok(<work item>) | Err({ type: "token-invalido" })
  * ```
  */
-export async function requestAdo(url: string): Promise<Result<unknown, AdoError>> {
+export async function fetchJson(url: string): Promise<Result<unknown, CliError>> {
   const pat = loadPat();
   const sinToken = pat === null;
   if (sinToken) return Result.err({ type: "sin-token" });

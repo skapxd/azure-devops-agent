@@ -1,6 +1,6 @@
 import { Result } from "@skapxd/result";
 
-import type { AdoError } from "@/errors/ado-error.js";
+import type { CliError } from "@/errors/cli-error.js";
 import type { RepoCoordinates } from "@/repo/repo-coordinates.js";
 import { getRemoteUrl } from "@/repo/get-remote-url.js";
 import { parseRemote } from "@/repo/parse-remote.js";
@@ -18,14 +18,14 @@ import { parseRemote } from "@/repo/parse-remote.js";
  * locateRepo(); // Ok({ org, project, repo, orgUrl }) | Err({ type: "sin-repo" })
  * ```
  */
-export function locateRepo(): Result<RepoCoordinates, AdoError> {
+export function locateRepo(): Result<RepoCoordinates, CliError> {
   const url = getRemoteUrl();
   const sinRepoGit = url === null;
   if (sinRepoGit) return Result.err({ type: "sin-repo" });
 
   const coordenadas = parseRemote(url);
   const remoteDeOtroServicio = coordenadas === null;
-  if (remoteDeOtroServicio) return Result.err({ type: "remote-no-ado", url });
+  if (remoteDeOtroServicio) return Result.err({ type: "remote-no-azure-devops", url });
 
   return Result.ok(coordenadas);
 }

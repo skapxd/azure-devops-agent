@@ -5,10 +5,10 @@ import { Result } from "@skapxd/result";
 
 import { runCreate } from "@/commands/boards/run-create.js";
 import { conFetchFalso } from "./helpers/con-fetch-falso.js";
-import { enUnRepoAdo } from "./helpers/en-un-repo-ado.js";
+import { enUnRepoAzureDevOps } from "./helpers/en-un-repo-azure-devops.js";
 
 test("crear con padre manda el enlace en la MISMA petición", async () => {
-  await enUnRepoAdo(async () => {
+  await enUnRepoAzureDevOps(async () => {
     const llamadas = await conFetchFalso(
       () => ({ estado: 200, json: { id: 11607 } }),
       async () => {
@@ -34,7 +34,7 @@ test("crear con padre manda el enlace en la MISMA petición", async () => {
 });
 
 test("los campos opcionales solo se envían si se piden", async () => {
-  await enUnRepoAdo(async () => {
+  await enUnRepoAzureDevOps(async () => {
     const llamadas = await conFetchFalso(
       () => ({ estado: 200, json: { id: 1 } }),
       async () => {
@@ -49,7 +49,7 @@ test("los campos opcionales solo se envían si se piden", async () => {
 });
 
 test("con todos los campos, cada uno va a su ruta", async () => {
-  await enUnRepoAdo(async () => {
+  await enUnRepoAzureDevOps(async () => {
     const llamadas = await conFetchFalso(
       () => ({ estado: 200, json: { id: 1 } }),
       async () => {
@@ -77,7 +77,7 @@ test("con todos los campos, cada uno va a su ruta", async () => {
 });
 
 test("el tipo va en la URL escapado, para admitir nombres con espacios", async () => {
-  await enUnRepoAdo(async () => {
+  await enUnRepoAzureDevOps(async () => {
     const llamadas = await conFetchFalso(
       () => ({ estado: 200, json: { id: 1 } }),
       async () => {
@@ -92,7 +92,7 @@ test("el tipo va en la URL escapado, para admitir nombres con espacios", async (
 });
 
 test("si la API falla, el error se propaga y no se imprime nada como éxito", async () => {
-  await enUnRepoAdo(async () => {
+  await enUnRepoAzureDevOps(async () => {
     await conFetchFalso(
       () => ({ estado: 400, json: {} }),
       async () => {

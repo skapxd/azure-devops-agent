@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { requestAdo } from "@/api/request-ado.js";
-import { sendAdo } from "@/api/send-ado.js";
+import { fetchJson } from "@/api/fetch-json.js";
+import { sendPatch } from "@/api/send-patch.js";
 import { conFetchFalso } from "./helpers/con-fetch-falso.js";
 import { conToken } from "./helpers/con-token.js";
 import { Result } from "@skapxd/result";
@@ -13,7 +13,7 @@ test("el token viaja en la cabecera, nunca en la URL", conToken(async () => {
   const llamadas = await conFetchFalso(
     () => ({ estado: 200, json: { value: [] } }),
     async () => {
-      await requestAdo("https://dev.azure.com/Org/_apis/algo");
+      await fetchJson("https://dev.azure.com/Org/_apis/algo");
     },
   );
 
@@ -31,7 +31,7 @@ test("un 401 se traduce a token-invalido, no a un error genérico", conToken(asy
   await conFetchFalso(
     () => ({ estado: 401, json: {} }),
     async () => {
-      const r = await requestAdo("https://dev.azure.com/Org/_apis/algo");
+      const r = await fetchJson("https://dev.azure.com/Org/_apis/algo");
       assert.ok(Result.isErr(r));
       assert.equal(r.error.type, "token-invalido");
     },
@@ -43,7 +43,7 @@ test("el 203 de Azure DevOps también significa token inválido", conToken(async
   await conFetchFalso(
     () => ({ estado: 203, json: {} }),
     async () => {
-      const r = await requestAdo("https://dev.azure.com/Org/_apis/algo");
+      const r = await fetchJson("https://dev.azure.com/Org/_apis/algo");
       assert.ok(Result.isErr(r));
       assert.equal(r.error.type, "token-invalido");
     },
@@ -54,7 +54,7 @@ test("otros códigos conservan el número para poder diagnosticar", conToken(asy
   await conFetchFalso(
     () => ({ estado: 404, json: {} }),
     async () => {
-      const r = await requestAdo("https://dev.azure.com/Org/_apis/algo");
+      const r = await fetchJson("https://dev.azure.com/Org/_apis/algo");
       assert.ok(Result.isErr(r));
       assert.deepEqual(r.error, { type: "api", status: 404 });
     },
@@ -69,7 +69,7 @@ test("sin token no se llega a hacer la petición", async () => {
   const llamadas = await conFetchFalso(
     () => ({ estado: 200, json: {} }),
     async () => {
-      const r = await requestAdo("https://dev.azure.com/Org/_apis/algo");
+      const r = await fetchJson("https://dev.azure.com/Org/_apis/algo");
       assert.ok(Result.isErr(r));
       assert.equal(r.error.type, "sin-token");
     },
@@ -82,7 +82,7 @@ test("las escrituras van como json-patch, que es lo que exige la API", conToken(
   const llamadas = await conFetchFalso(
     () => ({ estado: 200, json: { id: 42 } }),
     async () => {
-      await sendAdo(
+      await sendPatch(
         "https://dev.azure.com/Org/Proy/_apis/wit/workitems/$Task",
         [{ op: "add", path: "/fields/System.Title", value: "Algo" }],
         "POST",

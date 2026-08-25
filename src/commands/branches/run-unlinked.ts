@@ -4,7 +4,7 @@ import { Result, trySafe } from "@skapxd/result";
 
 import { filtrarRamasSinWorkItem } from "@/commands/branches/filtrar-ramas-sin-work-item.js";
 import { ramaPorDefecto } from "@/commands/branches/rama-por-defecto.js";
-import type { AdoError } from "@/errors/ado-error.js";
+import type { CliError } from "@/errors/cli-error.js";
 import type { Formato } from "@/format/formato.js";
 import { renderRamasSinEnlazar } from "@/commands/branches/render-ramas-sin-enlazar.js";
 
@@ -24,7 +24,7 @@ import { renderRamasSinEnlazar } from "@/commands/branches/render-ramas-sin-enla
  * npx @skapxd/azure-devops-agent branches unlinked
  * ```
  */
-export function runUnlinked(formato: Formato): Result<void, AdoError> {
+export function runUnlinked(formato: Formato): Result<void, CliError> {
   const ramas = trySafe(() =>
     execFileSync("git", ["branch", "--format=%(refname:short)"], {
       encoding: "utf8",

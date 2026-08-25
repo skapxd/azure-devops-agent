@@ -1,9 +1,9 @@
 import { Result } from "@skapxd/result";
 
 import { readValues } from "@/api/read-values.js";
-import { requestAdo } from "@/api/request-ado.js";
+import { fetchJson } from "@/api/fetch-json.js";
 import { locateRepo } from "@/repo/locate-repo.js";
-import type { AdoError } from "@/errors/ado-error.js";
+import type { CliError } from "@/errors/cli-error.js";
 import type { Formato } from "@/format/formato.js";
 import { renderEstados } from "@/commands/boards/render-estados.js";
 
@@ -23,12 +23,12 @@ import { renderEstados } from "@/commands/boards/render-estados.js";
 export async function runStates(
   tipo: string,
   formato: Formato,
-): Promise<Result<void, AdoError>> {
+): Promise<Result<void, CliError>> {
   const repo = locateRepo();
   if (Result.isErr(repo)) return repo;
   const ctx = repo.value;
 
-  const respuesta = await requestAdo(
+  const respuesta = await fetchJson(
     `${ctx.orgUrl}/${encodeURIComponent(ctx.project)}/_apis/wit/workitemtypes/${encodeURIComponent(tipo)}/states?api-version=7.0`,
   );
   if (Result.isErr(respuesta)) return respuesta;

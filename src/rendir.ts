@@ -1,14 +1,14 @@
 import { Result } from "@skapxd/result";
 
-import type { AdoError } from "@/errors/ado-error.js";
-import { describeAdoError } from "@/errors/describe-ado-error.js";
+import type { CliError } from "@/errors/cli-error.js";
+import { describeCliError } from "@/errors/describe-cli-error.js";
 import type { Formato } from "@/format/formato.js";
 import { parseFormato } from "@/format/parse-formato.js";
 
 /** Un comando: recibe el formato ya validado y hace su trabajo. */
 type Comando = (
   formato: Formato,
-) => Result<void, AdoError> | Promise<Result<void, AdoError>>;
+) => Result<void, CliError> | Promise<Result<void, CliError>>;
 
 /**
  * ## rendir
@@ -42,6 +42,6 @@ export async function rendir(
   const fallo = Result.isErr(resultado);
   if (!fallo) return;
 
-  console.error(`error: ${describeAdoError(resultado.error)}`);
+  console.error(`error: ${describeCliError(resultado.error)}`);
   process.exit(1);
 }

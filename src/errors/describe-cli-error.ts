@@ -1,16 +1,16 @@
 import { match } from "ts-pattern";
 
-import type { AdoError } from "@/errors/ado-error.js";
+import type { CliError } from "@/errors/cli-error.js";
 
 /** Traduce un error de dominio al mensaje que ve la persona. */
-export function describeAdoError(error: AdoError): string {
+export function describeCliError(error: CliError): string {
   return match(error)
     .with(
       { type: "sin-repo" },
       () => "no hay remote 'origin' — ¿estás dentro de un repositorio git?",
     )
     .with(
-      { type: "remote-no-ado" },
+      { type: "remote-no-azure-devops" },
       (e) => `el remote no es de Azure DevOps: ${e.url}`,
     )
     .with(

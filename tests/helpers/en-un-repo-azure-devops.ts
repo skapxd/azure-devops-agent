@@ -4,7 +4,7 @@ import { repoDePrueba } from "./repo-de-prueba.js";
 import { sinRuido } from "./sin-ruido.js";
 
 /**
- * ## enUnRepoAdo
+ * ## enUnRepoAzureDevOps
  *
  * Ejecuta algo dentro de un repositorio con remote de Azure DevOps y con un
  * token de mentira en el entorno.
@@ -13,7 +13,7 @@ import { sinRuido } from "./sin-ruido.js";
  * `git remote` del directorio actual: sin esto leerían el del propio proyecto,
  * que apunta a GitHub.
  */
-export async function enUnRepoAdo(ejecutar: () => Promise<void>): Promise<void> {
+export async function enUnRepoAzureDevOps(ejecutar: () => Promise<void>): Promise<void> {
   const repo = repoDePrueba(["main"], "git@ssh.dev.azure.com:v3/MiOrg/MiProy/MiRepo");
   const cwdOriginal = process.cwd();
   process.chdir(repo.ruta);

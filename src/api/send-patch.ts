@@ -1,7 +1,7 @@
 import { Result, trySafe } from "@skapxd/result";
 
 import { loadPat } from "@/auth/load-pat.js";
-import type { AdoError } from "@/errors/ado-error.js";
+import type { CliError } from "@/errors/cli-error.js";
 
 const NO_AUTORIZADO = 401;
 const REDIRIGIDO_A_LOGIN = 203;
@@ -14,24 +14,24 @@ export interface OperacionPatch {
 }
 
 /**
- * ## sendAdo
+ * ## sendPatch
  *
- * Escritura contra la API de Azure DevOps.
+ * Escribe en la API de Azure DevOps con el formato JSON Patch que exige.
  *
  * Los work items se crean y modifican con `application/json-patch+json`: el
  * cuerpo es una lista de operaciones, no un objeto. Eso permite fijar campos y
  * enlazar el padre en la misma llamada.
  *
  * ```ts
- * await sendAdo(url, [{ op: "add", path: "/fields/System.Title", value: "x" }], "POST");
+ * await sendPatch(url, [{ op: "add", path: "/fields/System.Title", value: "x" }], "POST");
  * // Ok({ id: 11603 }) | Err({ type: "api", status: 400 })
  * ```
  */
-export async function sendAdo(
+export async function sendPatch(
   url: string,
   operaciones: readonly OperacionPatch[],
   metodo: "POST" | "PATCH",
-): Promise<Result<unknown, AdoError>> {
+): Promise<Result<unknown, CliError>> {
   const pat = loadPat();
   const sinToken = pat === null;
   if (sinToken) return Result.err({ type: "sin-token" });

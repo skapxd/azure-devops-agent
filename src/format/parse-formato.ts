@@ -1,6 +1,6 @@
 import { Result } from "@skapxd/result";
 
-import type { AdoError } from "@/errors/ado-error.js";
+import type { CliError } from "@/errors/cli-error.js";
 import type { Formato } from "@/format/formato.js";
 import { FORMATOS } from "@/format/formato.js";
 
@@ -18,7 +18,7 @@ import { FORMATOS } from "@/format/formato.js";
  * parseFormato("yaml");    // Err({ type: "uso", … })
  * ```
  */
-export function parseFormato(valor: string): Result<Formato, AdoError> {
+export function parseFormato(valor: string): Result<Formato, CliError> {
   const esConocido = (FORMATOS as readonly string[]).includes(valor);
   if (!esConocido) {
     return Result.err({
