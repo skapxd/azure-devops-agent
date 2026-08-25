@@ -2,11 +2,37 @@
   "name": "@skapxd/azure-devops-agent",
   "version": "0.1.1",
   "description": "Azure DevOps desde la terminal: work items, trazabilidad y contexto autodetectado del git remote",
+  "keywords": [
+    "azure-devops",
+    "azure-boards",
+    "cli",
+    "agent-skill",
+    "work-items",
+    "trazabilidad"
+  ],
+  "homepage": "https://github.com/skapxd/azure-devops-agent#readme",
+  "bugs": {
+    "url": "https://github.com/skapxd/azure-devops-agent/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skapxd/azure-devops-agent.git"
+  },
+  "license": "MIT",
+  "author": "skapxd",
   "type": "module",
   "packageManager": "pnpm@11.7.0",
   "engines": {
     "node": ">=20.12.0"
   },
+  "bin": {
+    "azure-devops-agent": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "SECURITY.md"
+  ],
   "scripts": {
     "build": "tsup",
     "check": "pnpm run typecheck && pnpm run lint && pnpm run test",
@@ -17,6 +43,11 @@
     "test": "pnpm run build && tsx --test \"tests/**/*.test.ts\"",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "@skapxd/result": "^2.0.1",
+    "commander": "^15.0.0",
+    "ts-pattern": "^5.9.0"
+  },
   "devDependencies": {
     "@skapxd/lint-agent": "^1.5.0",
     "@types/node": "^22.10.2",
@@ -25,27 +56,5 @@
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.67.0"
-  },
-  "license": "MIT",
-  "dependencies": {
-    "@skapxd/result": "^2.0.1",
-    "commander": "^15.0.0",
-    "ts-pattern": "^5.9.0"
-  },
-  "bin": {
-    "azure-devops-agent": "./dist/cli.js"
-  },
-  "files": [
-    "dist",
-    "README.md",
-    "SECURITY.md"
-  ],
-  "keywords": [
-    "azure-devops",
-    "azure-boards",
-    "cli",
-    "agent-skill",
-    "work-items",
-    "trazabilidad"
-  ]
+  }
 }

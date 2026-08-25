@@ -11,6 +11,14 @@ on:
 permissions:
   contents: read
 
+# `git push --follow-tags` empuja rama y tag: son dos eventos push sobre el
+# mismo commit y el workflow correría entero dos veces. Agrupando por SHA, el
+# segundo cancela al primero — y el que sobrevive es el del tag, que ademas
+# publica.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.sha }}
+  cancel-in-progress: true
+
 jobs:
   build-and-test:
     name: Build & Test (${{ matrix.os }}, Node ${{ matrix.node-version }})
