@@ -79,6 +79,24 @@ pnpm add -g @skapxd/azure-devops-agent
 ado boards orphans
 ```
 
+## Desarrollo
+
+```bash
+pnpm install
+pnpm check              # tipos estrictos + lint + pruebas
+pnpm build              # compila a dist/
+pnpm watch              # recompila al guardar
+
+pnpm link               # deja `ado` disponible en todo el sistema
+pnpm unlink             # lo quita
+```
+
+Para probar un cambio, `pnpm link` una vez y luego `ado <comando>` desde
+cualquier repositorio. Los scripts `dev` y `start` ejecutan el CLI, pero solo
+sirven dentro de este proyecto: el comando necesita correr **dentro del repo que
+quieres consultar**, porque saca la organización y el proyecto de su `git
+remote`.
+
 ### Formato de salida
 
 El predeterminado es **markdown**, porque el lector principal de este CLI es un agente de código y el markdown le da estructura semántica —tablas, listas ordenadas, énfasis— que el texto alineado con espacios no tiene.
@@ -112,14 +130,6 @@ https://<org>.visualstudio.com/<proyecto>/_git/<repo>
 ```
 
 Los tipos de work item y sus estados se consultan al proyecto en tiempo real, así que funciona igual con Agile, Scrum, CMMI o un workflow a medida.
-
-## Desarrollo
-
-```bash
-pnpm install
-pnpm check       # tipos estrictos + lint + pruebas
-pnpm build       # compila a dist/
-```
 
 Ver [SECURITY.md](SECURITY.md) para las decisiones de manejo del token y por qué el CLI no ejecuta shell.
 
