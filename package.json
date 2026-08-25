@@ -42,7 +42,8 @@
     "security:audit": "pnpm audit --audit-level low",
     "test": "pnpm run build && vitest run",
     "typecheck": "tsc --noEmit",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@skapxd/result": "^2.0.1",
@@ -52,6 +53,7 @@
   "devDependencies": {
     "@skapxd/lint-agent": "^1.5.0",
     "@types/node": "^22.10.2",
+    "@vitest/coverage-v8": "^4.1.11",
     "eslint": "^10.9.0",
     "tsup": "^8.5.1",
     "typescript": "^5.7.2",

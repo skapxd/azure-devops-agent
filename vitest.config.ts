@@ -27,5 +27,27 @@ export default defineConfig({
     // dentro de cada uno las pruebas ya corren en orden.
     pool: "forks",
     isolate: true,
+    coverage: {
+      provider: "v8",
+      // Todo lo que vitest genera cuelga de .vitest/, y esa carpeta entera está
+      // ignorada. Son artefactos regenerables en cada ejecución: versionarlos
+      // solo produce diffs de ruido en cada PR.
+      reportsDirectory: "./.vitest/coverage",
+      // Solo el código propio: las pruebas no se miden a sí mismas.
+      include: ["src/**/*.ts"],
+      exclude: [
+        "src/**/*.spec.ts",
+        // El e2e sí ejercita cli.ts, pero lanzando `node dist/cli.js` en otro
+        // proceso: la cobertura de v8 vive en este, así que lo vería siempre a
+        // 0 %. Dejarlo en el informe sería un rojo permanente que enseña a
+        // ignorar el informe entero.
+        "src/cli.ts",
+        // Cadenas de ayuda. No hay ramas ni decisiones que cubrir.
+        "src/help-examples.ts",
+      ],
+      // `json` es el que lee el explorador de pruebas para pintar las líneas
+      // cubiertas en el margen del editor; `text` es para la terminal.
+      reporter: ["text", "html", "json", "lcov"],
+    },
   },
 });
