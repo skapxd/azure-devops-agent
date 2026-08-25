@@ -1,6 +1,6 @@
 import { Result, trySafe } from "@skapxd/result";
 
-import type { AdoContext } from "./ado-context.js";
+import type { AdoContext } from "@/context/ado-context.js";
 
 /**
  * Identificadores admitidos en un segmento, ya decodificado.

@@ -1,6 +1,6 @@
 import { match } from "ts-pattern";
 
-import type { AdoError } from "./ado-error.js";
+import type { AdoError } from "@/errors/ado-error.js";
 
 /** Traduce un error de dominio al mensaje que ve la persona. */
 export function describeAdoError(error: AdoError): string {

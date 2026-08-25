@@ -9,4 +9,3 @@ export type Formato = "markdown" | "json" | "text";
 
 export const FORMATOS: readonly Formato[] = ["markdown", "json", "text"];
 
-export const FORMATO_POR_DEFECTO: Formato = "markdown";
