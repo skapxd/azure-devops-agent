@@ -11,12 +11,18 @@ on:
 permissions:
   contents: read
 
-# `git push --follow-tags` empuja rama y tag: son dos eventos push sobre el
-# mismo commit y el workflow correría entero dos veces. Agrupando por SHA, el
-# segundo cancela al primero — y el que sobrevive es el del tag, que ademas
-# publica.
+# `git push --follow-tags` empuja rama y tag: dos eventos push sobre el mismo
+# commit. Agruparlos juntos para no verificar dos veces parecia buena idea, pero
+# es una CARRERA: el evento que llegue segundo cancela al primero, y la mitad de
+# las veces el sacrificado es el del tag, que es el unico que publica. Paso en
+# v0.2.0.
+#
+# Por eso el tipo de referencia entra en el grupo: un run de tag no comparte
+# grupo con ninguno de rama y no hay forma de que lo cancelen. El precio es
+# verificar dos veces el commit que se publica —solo en las releases—, y eso es
+# barato al lado de una publicacion que desaparece sin dejar rastro de error.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.sha }}
+  group: ${{ github.workflow }}-${{ github.ref_type }}-${{ github.sha }}
   cancel-in-progress: true
 
 jobs:
