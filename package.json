@@ -5,18 +5,17 @@
   "type": "module",
   "packageManager": "pnpm@11.12.0",
   "engines": {
-    "node": ">=18",
-    "pnpm": ">=10"
+    "node": ">=20.12.0"
   },
   "scripts": {
     "build": "tsup",
     "check": "pnpm run typecheck && pnpm run lint && pnpm run test",
+    "dev": "tsup --watch",
     "lint": "eslint src tests",
     "lint:fix": "eslint src tests --fix",
-    "prepublishOnly": "pnpm run check && pnpm run build",
+    "security:audit": "pnpm audit --audit-level low",
     "test": "pnpm run build && tsx --test \"tests/**/*.test.ts\"",
-    "typecheck": "tsc --noEmit",
-    "watch": "tsup --watch"
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@skapxd/lint-agent": "^1.5.0",

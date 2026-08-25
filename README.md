@@ -76,10 +76,25 @@ npx @skapxd/azure-devops-agent boards create \
 
 ```bash
 pnpm install
-pnpm check     # tipos estrictos + lint + pruebas
-pnpm build     # compila a dist/
-pnpm watch     # recompila al guardar
+pnpm check            # tipos estrictos + lint + pruebas
+pnpm build            # compila a dist/
+pnpm dev              # recompila al guardar
+pnpm security:audit   # auditoría de dependencias
 ```
+
+### Publicar
+
+La publicación la hace el CI al empujar un tag, no se ejecuta a mano:
+
+```bash
+npm version patch     # o minor / major
+git push --follow-tags
+```
+
+El workflow verifica en las tres plataformas, audita las dependencias y solo
+entonces publica, autenticándose contra npm por **OIDC** — no hay ningún token
+guardado como secreto que se pueda filtrar. El paquete se firma con
+`--provenance`, así que quien lo instale puede comprobar de qué commit salió.
 
 Para probar un cambio sin publicar, `npx` acepta la ruta local. Ejecútalo
 **dentro del repo que quieras consultar**, porque el proyecto sale de su `git

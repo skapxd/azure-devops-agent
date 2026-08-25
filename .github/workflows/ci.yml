@@ -1,39 +1,144 @@
-name: CI
+name: CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: ["main"]
+    # Cada tag vX.Y.Z dispara la publicacion a NPM.
+    tags: ["v*"]
   pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
 
 jobs:
-  verificar:
+  build-and-test:
+    name: Build & Test (${{ matrix.os }}, Node ${{ matrix.node-version }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        # El CLI se anuncia como multiplataforma: los perfiles de shell donde
-        # busca el token y las rutas de git difieren por sistema, así que se
-        # comprueba en los tres en vez de fiarlo a que "debería funcionar".
+        # Las tres plataformas importan: el CLI busca el token en perfiles de
+        # shell que difieren por sistema, y las rutas de git tambien.
         os: [ubuntu-latest, macos-latest, windows-latest]
-        node: [18, 22]
+        # pnpm 11 requiere Node >= 22.13.
+        node-version: [22.x, 24.x]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        # actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
-      - uses: pnpm/action-setup@v4
+      - name: Setup pnpm
+        # pnpm/action-setup@v6
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        # actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
         with:
-          version: 10
+          node-version: ${{ matrix.node-version }}
+          cache: "pnpm"
 
-      - uses: actions/setup-node@v4
+      - name: Install dependencies (Frozen Lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Package
+        run: pnpm build
+
+      - name: Type Check
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      # No necesitan token ni red: los repositorios de git se crean al vuelo y
+      # las respuestas de la API se simulan sustituyendo fetch.
+      - name: Run Tests
+        run: pnpm test
+
+  dependency-audit:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        # actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+
+      - name: Setup pnpm
+        # pnpm/action-setup@v6
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+
+      - name: Use Node.js 22.x
+        # actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
         with:
-          node-version: ${{ matrix.node }}
-          cache: pnpm
+          node-version: 22.x
+          cache: "pnpm"
 
-      - run: pnpm install --frozen-lockfile
+      - name: Install dependencies (Frozen Lockfile)
+        run: pnpm install --frozen-lockfile
 
-      # Las pruebas no necesitan token ni red: los repositorios de git se crean
-      # al vuelo y las respuestas de la API se simulan sustituyendo fetch.
-      - run: pnpm run check
+      - name: Audit Dependencies
+        run: pnpm security:audit
 
-      - name: Auditoría de dependencias
-        run: pnpm audit --audit-level moderate
+  publish:
+    name: Publish to NPM
+    needs:
+      - build-and-test
+      - dependency-audit
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    steps:
+      - name: Checkout repository
+        # actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+
+      - name: Setup pnpm
+        # pnpm/action-setup@v6
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271
+
+      # SIN `registry-url`: esa opcion hace que setup-node escriba un .npmrc con
+      # `_authToken=${NODE_AUTH_TOKEN}` y exporte un NODE_AUTH_TOKEN placeholder
+      # (XXXXX-XXXXX-...). npm lo toma como credencial y NUNCA intenta OIDC -> 404.
+      # Sin authToken + id-token: write + npm >= 11.5.1, npm usa el Trusted Publisher.
+      - name: Setup Node.js for Publishing
+        # actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        with:
+          node-version: 22.x
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Package
+        run: pnpm build
+
+      - name: Pack release artifact
+        id: pack
+        shell: bash
+        run: |
+          package_file="$(npx -y npm@11.18.0 pack --json | node -e "let input = ''; process.stdin.on('data', chunk => input += chunk); process.stdin.on('end', () => { const parsed = JSON.parse(input); const pack = Array.isArray(parsed) ? parsed[0] : Object.values(parsed)[0]; if (!pack?.filename) { throw new Error('npm pack --json no devolvio filename'); } console.log(pack.filename); });")"
+          shasum -a 256 "$package_file" > "$package_file.sha256"
+          echo "package_file=$package_file" >> "$GITHUB_OUTPUT"
+
+      - name: Generate release provenance
+        # actions/attest@v4.1.1
+        uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763
+        with:
+          subject-path: ${{ steps.pack.outputs.package_file }}
+
+      # npm 11.18.0 via npx (Setup pnpm altera el prefix global, asi que
+      # `npm install -g` no actualiza el npm que corre aqui). El id-token de Actions
+      # autentica contra el Trusted Publisher OIDC; no usamos `latest` porque npm 12.0.0
+      # rompio `publish --provenance` en npx por falta de `sigstore`.
+      - name: Publish to NPM (OIDC trusted publisher)
+        run: |
+          npx -y npm@11.18.0 --version
+          npx -y npm@11.18.0 publish "${{ steps.pack.outputs.package_file }}" --access public --provenance
