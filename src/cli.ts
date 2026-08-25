@@ -46,7 +46,7 @@ async function rendir(
 const program = new Command();
 
 program
-  .name("ado")
+  .name("npx @skapxd/azure-devops-agent")
   .description(
     "Tres cosas que `az boards` no hace.\n\n" +
       "Este CLI es COMPLEMENTARIO a la extensión azure-devops de Azure CLI, no un\n" +

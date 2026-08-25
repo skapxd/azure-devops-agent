@@ -12,7 +12,7 @@ Para qué sirve:
   personaliza su workflow, así que inventarlos falla.
 
 Ejemplo:
-  $ ado boards states Task
+  $ npx @skapxd/azure-devops-agent boards states Task
 
   Estados de \`Task\`:
 
@@ -21,7 +21,7 @@ Ejemplo:
   3. Done
   4. Removed
 
-  $ ado boards states "Product Backlog Item" --format text
+  $ npx @skapxd/azure-devops-agent boards states "Product Backlog Item" --format text
 
   New → Approved → In Progress → Por pasar a QA → Test QA → Done
 `;
@@ -32,7 +32,7 @@ Para qué sirve:
   nace de un arreglo rápido, se mergea, y no deja rastro en el tablero.
 
 Ejemplo:
-  $ ado boards orphans
+  $ npx @skapxd/azure-devops-agent boards orphans
 
   **2 ramas sin work item asociado:**
 
@@ -53,7 +53,7 @@ Para qué sirve:
     az boards work-item create --type Bug --title "..."
 
 Ejemplo:
-  $ ado boards create --type Task --parent 11603 \\
+  $ npx @skapxd/azure-devops-agent boards create --type Task --parent 11603 \\
       --title "Eliminar el índice único de dominio" \\
       --assign persona@ejemplo.com
 
@@ -74,7 +74,7 @@ Empieza por aquí:
     MiProyecto
 
   Y para ver qué trabajo tuyo no está registrado:
-    $ ado boards orphans
+    $ npx @skapxd/azure-devops-agent boards orphans
 
 Reparto de tareas:
   consultar, buscar, actualizar, crear sin jerarquía   →  az boards

@@ -58,13 +58,25 @@ Ese rodeo existe porque en macOS y Linux un shell no interactivo no carga `.zshr
 
 Son tres, y cada uno existe porque `az` no lo cubre:
 
-```
-ado boards states <tipo>    estados válidos del workflow de ese tipo
-ado boards orphans          ramas locales sin work item asociado
-ado boards create --type <tipo> --title <texto> --parent <id>
-                  [--description <html>] [--assign <correo>] [--iteration <ruta>]
+```bash
+# los estados por los que puede pasar un work item de ese tipo
+npx @skapxd/azure-devops-agent boards states "Product Backlog Item"
 
---format <markdown|json|text>    en cualquier comando (por defecto: markdown)
+# qué ramas tuyas no están registradas en el tablero
+npx @skapxd/azure-devops-agent boards orphans
+
+# crea una tarea ya colgada de su historia, en una sola llamada
+npx @skapxd/azure-devops-agent boards create \
+  --type Task --parent 11603 --title "Eliminar el índice único"
+
+# --format <markdown|json|text> en cualquier comando (por defecto: markdown)
+```
+
+Si lo usas a diario, instalarlo te deja el atajo `ado`:
+
+```bash
+pnpm add -g @skapxd/azure-devops-agent
+ado boards orphans
 ```
 
 ### Formato de salida
@@ -72,7 +84,7 @@ ado boards create --type <tipo> --title <texto> --parent <id>
 El predeterminado es **markdown**, porque el lector principal de este CLI es un agente de código y el markdown le da estructura semántica —tablas, listas ordenadas, énfasis— que el texto alineado con espacios no tiene.
 
 ```console
-$ ado boards orphans
+$ npx @skapxd/azure-devops-agent boards orphans
 **2 ramas sin work item asociado:**
 
 - `fix/ajuste-rapido`

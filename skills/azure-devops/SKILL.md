@@ -25,9 +25,9 @@ az repos list --query "[0].project.name" -o tsv
 
 | Necesidad | Comando |
 |---|---|
-| Estados válidos de un tipo de work item | `ado boards states "<tipo>"` |
-| Crear un work item **ya colgado** de su padre | `ado boards create --parent <id> …` |
-| Ramas sin work item asociado | `ado boards orphans` |
+| Estados válidos de un tipo de work item | `npx @skapxd/azure-devops-agent boards states "<tipo>"` |
+| Crear un work item **ya colgado** de su padre | `npx @skapxd/azure-devops-agent boards create --parent <id> …` |
+| Ramas sin work item asociado | `npx @skapxd/azure-devops-agent boards orphans` |
 
 Se ejecuta sin instalar nada:
 
@@ -51,7 +51,7 @@ Se lee del entorno y, si no está ahí (habitual en shells no interactivos), del
 
 Una skill que interrumpe en cada mensaje termina desactivada, y entonces no sirve para nada. Propón donde el costo de olvidar es alto:
 
-- **Rama sin historia asociada.** `ado boards orphans` las lista. Es el caso que más trabajo pierde: una rama sin número nace de un arreglo rápido, se mergea, y nunca deja rastro.
+- **Rama sin historia asociada.** `npx @skapxd/azure-devops-agent boards orphans` las lista. Es el caso que más trabajo pierde: una rama sin número nace de un arreglo rápido, se mergea, y nunca deja rastro.
 - **Hallazgos que no se corrigen ahora.** Una revisión que encuentra cinco cosas y arregla dos deja tres que se evaporan al cerrar la conversación.
 - **Deuda técnica que tú mismo introduces.** Un workaround, un TODO, un script de migración temporal que alguien debe borrar después: nadie más sabe que existe.
 - **Pendientes mencionados al pasar.** "Hay que revisar eso", "lleva fallando un tiempo", "algún día habría que migrarlo".
