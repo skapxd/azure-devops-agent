@@ -1,6 +1,6 @@
 ---
 name: azure-devops-workflow
-description: Registra y consulta trabajo en Azure DevOps desde la terminal — crea historias, tareas hijas y bugs, los asigna, los transiciona y los enlaza con el código, usando az boards y el CLI @skapxd/azure-devops-agent para lo que az no cubre. Úsala siempre que aparezca trabajo sin registrar: una rama sin número de historia, un pendiente que el usuario menciona al pasar, deuda técnica, un TODO que quedará para después, un hallazgo de code review que no se corregirá ahora, o al cerrar algo para dejar el tablero al día. También cuando pregunten qué tienen asignado o en qué va una historia. No esperes a que digan "Azure DevOps" o "work item" — el trabajo se pierde justamente porque nadie se acuerda de nombrarlo.
+description: Registra y consulta trabajo en Azure DevOps desde la terminal — crea work items y los cuelga de su padre, los asigna, los transiciona y los enlaza con el código, usando az boards y el CLI @skapxd/azure-devops-agent para lo que az no cubre. Úsala siempre que aparezca trabajo sin registrar: una rama sin número de work item, un pendiente que el usuario menciona al pasar, deuda técnica, un TODO que quedará para después, un hallazgo de code review que no se corregirá ahora, o al cerrar algo para dejar el tablero al día. También cuando pregunten qué tienen asignado o en qué va un work item. No esperes a que digan "Azure DevOps" o "work item" — el trabajo se pierde justamente porque nadie se acuerda de nombrarlo.
 ---
 
 # Trazabilidad en Azure DevOps
@@ -51,7 +51,7 @@ Se lee del entorno y, si no está ahí (habitual en shells no interactivos), del
 
 Una skill que interrumpe en cada mensaje termina desactivada, y entonces no sirve para nada. Propón donde el costo de olvidar es alto:
 
-- **Rama sin historia asociada.** `npx @skapxd/azure-devops-agent branches unlinked` las lista. Es el caso que más trabajo pierde: una rama sin número nace de un arreglo rápido, se mergea, y nunca deja rastro.
+- **Rama sin work item asociado.** `npx @skapxd/azure-devops-agent branches unlinked` las lista. Es el caso que más trabajo pierde: una rama sin número nace de un arreglo rápido, se mergea, y nunca deja rastro.
 - **Hallazgos que no se corrigen ahora.** Una revisión que encuentra cinco cosas y arregla dos deja tres que se evaporan al cerrar la conversación.
 - **Deuda técnica que tú mismo introduces.** Un workaround, un TODO, un script de migración temporal que alguien debe borrar después: nadie más sabe que existe.
 - **Pendientes mencionados al pasar.** "Hay que revisar eso", "lleva fallando un tiempo", "algún día habría que migrarlo".
@@ -71,7 +71,7 @@ pnpx @skapxd/azure-devops-agent boards states "Product Backlog Item"
 
 Muchos equipos añaden estados que reflejan su pipeline de ambientes ("Listo para QA", "En Pre-Prod"). Respeta esa semántica: suelen distinguir *esperando despliegue* de *desplegado y en validación*.
 
-**Busca si ya existe.** Duplicar tickets hace tanto daño como no crearlos:
+**Busca si ya existe.** Duplicar work items hace tanto daño como no crearlos:
 
 ```bash
 az boards query -o table \
@@ -88,7 +88,7 @@ AND [System.ChangedDate] > @today - 120"
 az boards work-item create --type Bug --title "..." --description "<b>Pasos</b>…"
 ```
 
-**Colgado de una historia**, con el CLI — en una sola llamada:
+**Colgado de un padre**, con el CLI — en una sola llamada:
 
 ```bash
 pnpx @skapxd/azure-devops-agent boards create \
@@ -98,7 +98,7 @@ pnpx @skapxd/azure-devops-agent boards create \
 
 Esto último es el hueco de `az`: allí son dos comandos (`work-item create` y luego `relation add`), y un fallo entre ambos deja un work item huérfano que nadie sabe de dónde salió.
 
-Descomponer una historia en tareas es lo primero que se salta el equipo cuando va con prisa, y es lo que hace que el tablero refleje el avance real en vez de saltar de 0% a 100%. Si el usuario acaba de crear una historia con frentes claros (backend, frontend, pruebas), ofrécele crear las tareas de una vez.
+Descomponer un work item en otros más pequeños es lo primero que se salta el equipo cuando va con prisa, y es lo que hace que el tablero refleje el avance real en vez de saltar de 0% a 100%. Si el usuario acaba de crear un work item con frentes claros (backend, frontend, pruebas), ofrécele crear los hijos de una vez.
 
 `--description` se renderiza como **HTML**: usa `<br>`, `<ul><li>`, `<b>`. Los saltos de línea planos se pierden y el texto queda en un párrafo ilegible.
 
@@ -121,7 +121,7 @@ Evita `@Me` en WiQL: resuelve a la identidad del token, que no siempre es la cue
 
 Un comentario al cerrar, con el número de build o el commit, ahorra la arqueología de meses después.
 
-## Enlazar el código con su ticket
+## Enlazar el código con su work item
 
 Azure DevOps asocia commits y pull requests automáticamente cuando el mensaje incluye `#<id>`:
 

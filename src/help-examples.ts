@@ -8,7 +8,7 @@
 
 export const EJEMPLO_STATES = `
 Para qué sirve:
-  Antes de mover un ticket, saber a qué estados puedes moverlo. Cada proyecto
+  Antes de mover un work item, saber a qué estados puedes moverlo. Cada proyecto
   personaliza su workflow, así que inventarlos falla.
 
 Ejemplo:
@@ -28,7 +28,7 @@ Ejemplo:
 
 export const EJEMPLO_UNLINKED = `
 Para qué sirve:
-  Encontrar el trabajo que se está perdiendo. Una rama sin número de historia
+  Encontrar el trabajo que se está perdiendo. Una rama sin número de work item
   nace de un arreglo rápido, se mergea, y no deja rastro en el tablero.
 
 Ejemplo:
@@ -45,7 +45,7 @@ Ejemplo:
 
 export const EJEMPLO_CREATE = `
 Para qué sirve:
-  Colgar una tarea de su historia sin dejar cabos sueltos. En az son dos pasos
+  Colgar un work item de su padre sin dejar cabos sueltos. En az son dos pasos
   —crear y luego enlazar—; si el segundo falla, queda un work item huérfano que
   nadie sabe de dónde salió. Aquí, o queda completo o no queda nada.
 
@@ -76,7 +76,7 @@ Empieza por aquí:
   Y para ver qué trabajo tuyo no está registrado:
     $ npx @skapxd/azure-devops-agent branches unlinked
 
-Reparto de tareas:
+Quién hace qué:
   consultar, buscar, actualizar, crear sin jerarquía   →  az boards
   estados del workflow, crear con padre              →  boards
   ramas sin work item                                →  branches

@@ -65,7 +65,7 @@ npx @skapxd/azure-devops-agent boards states "Product Backlog Item"
 # qué ramas tuyas no referencian ningún work item
 npx @skapxd/azure-devops-agent branches unlinked
 
-# crea una tarea ya colgada de su historia, en una sola llamada
+# crea un work item ya colgado de su padre, en una sola llamada
 npx @skapxd/azure-devops-agent boards create \
   --type Task --parent 11603 --title "Eliminar el índice único"
 
@@ -112,7 +112,7 @@ Por qué cada uno:
 
 - **`states`** consulta los estados reales del workflow. `az` no los expone, y casi todos los proyectos los tienen personalizados: usar uno que no existe falla.
 - **`branches unlinked`** lista las ramas que no referencian ningún work item. No existe en ningún sitio, y es donde más trazabilidad se pierde. Va en su propio grupo porque no consulta el tablero: mira tu git local.
-- **`create --parent`** crea el work item **ya colgado** de su historia, en una sola llamada. En `az` son dos comandos (`work-item create` y `relation add`), y un fallo entre ambos deja un huérfano que nadie sabe de dónde salió.
+- **`create --parent`** crea el work item **ya colgado** de su padre, en una sola llamada. En `az` son dos comandos (`work-item create` y `relation add`), y un fallo entre ambos deja un huérfano que nadie sabe de dónde salió.
 
 Para todo lo demás —consultar, buscar, actualizar, crear sin jerarquía— usa `az boards`.
 

@@ -1,4 +1,4 @@
-name: Publicar en npm
+name: Deploy a npm
 
 on:
   release:
@@ -9,7 +9,7 @@ permissions:
   id-token: write # necesario para la procedencia (provenance)
 
 jobs:
-  publicar:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

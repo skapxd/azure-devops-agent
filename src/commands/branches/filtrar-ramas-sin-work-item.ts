@@ -14,7 +14,7 @@ const NUMERO_EN_RAMA = /(?:^|[/_#-])(\d{2,})(?:[/_-]|$)/;
  * referencian ningún work item.
  *
  * Se excluyen las ramas base —`main`, `dev`, `release/*`…— porque nunca tienen
- * ticket y reportarlas sería ruido que tapa las que sí importan.
+ * work item y reportarlas sería ruido que tapa las que sí importan.
  *
  * ```ts
  * filtrarRamasSinWorkItem("main\nfeat/1234-algo\nfix/rapido\n", "main");

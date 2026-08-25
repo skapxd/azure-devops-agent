@@ -30,7 +30,7 @@ const NOMBRES_BASE = new Set([
  * Decide si una rama es de integración o ambiente en vez de trabajo.
  *
  * Marcarlas como "sin work item" sería técnicamente cierto y prácticamente
- * inútil: nadie abre un ticket para `main`. Un comando que reporta ruido en la
+ * inútil: nadie abre un work item para `main`. Un comando que reporta ruido en la
  * primera ejecución pierde la credibilidad que necesita para que le hagan caso.
  *
  * ```ts

@@ -11,7 +11,7 @@ import type { CreateOptions } from "@/commands/boards/create-options.js";
 /**
  * ## runCreate
  *
- * Crea un work item ya colgado de su historia, en una sola llamada.
+ * Crea un work item ya colgado de su padre, en una sola llamada.
  *
  * Es el hueco que deja `az`: allí son dos comandos —`work-item create` y
  * `relation add`— y un fallo entre ambos deja un work item huérfano que nadie

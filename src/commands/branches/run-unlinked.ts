@@ -18,7 +18,7 @@ import { renderRamasSinEnlazar } from "@/commands/branches/render-ramas-sin-enla
  * barata de recuperar esa trazabilidad antes de que se olvide del todo.
  *
  * Se excluyen las ramas base (`main`, `dev`, `release/*`…) y la principal del
- * remote: nunca tienen ticket, y reportarlas taparía las que sí importan.
+ * remote: nunca tienen work item, y reportarlas taparía las que sí importan.
  *
  * ```bash
  * npx @skapxd/azure-devops-agent branches unlinked

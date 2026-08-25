@@ -56,11 +56,11 @@ boards
   .command("create")
   .requiredOption("--type <tipo>", "Task, Bug… (ver: az boards work-item type list)")
   .requiredOption("--title <texto>", "qué pasa, no dónde: se lee en una lista de cientos")
-  .requiredOption("--parent <id>", "id de la historia de la que cuelga, p. ej. 11603")
+  .requiredOption("--parent <id>", "id del work item padre, p. ej. 11603")
   .option("--description <html>", "por qué importa y qué se rompe si no se hace (HTML)")
   .option("--assign <correo>", "responsable, por correo")
   .option("--iteration <ruta>", "sprint (az boards iteration project list); sin esto va al backlog")
-  .description("crea una tarea ya colgada de su historia, en una sola llamada")
+  .description("crea un work item ya colgado de su padre, en una sola llamada")
   .addHelpText("after", EJEMPLO_CREATE)
   .action(
     async (opciones: {
