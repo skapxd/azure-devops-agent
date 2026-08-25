@@ -7,6 +7,7 @@ import type { CliError } from "@/errors/cli-error.js";
 import type { Formato } from "@/format/formato.js";
 import { renderWorkItemCreado } from "@/commands/boards/render-work-item-creado.js";
 import type { CreateOptions } from "@/commands/boards/create-options.js";
+import { ETIQUETA_AGENTE } from "@/commands/boards/etiqueta-agente.js";
 
 /**
  * ## runCreate
@@ -32,6 +33,10 @@ export async function runCreate(
 
   const operaciones: OperacionPatch[] = [
     { op: "add", path: "/fields/System.Title", value: opciones.title },
+    // La huella se estampa al nacer. Ponerla despues seria otra escritura, otra
+    // revision en el historial y una ventana en la que el work item ya existe
+    // pero todavia no se puede filtrar.
+    { op: "add", path: "/fields/System.Tags", value: ETIQUETA_AGENTE },
   ];
 
   if (opciones.description) {

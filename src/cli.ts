@@ -1,7 +1,12 @@
 #!/usr/bin/env node
+import { createRequire } from "node:module";
+
 import { Command } from "commander";
 
+import { acumularOpcionRepetible } from "@/acumular-opcion-repetible.js";
+import { ETIQUETA_AGENTE } from "@/commands/boards/etiqueta-agente.js";
 import { runCreate } from "@/commands/boards/run-create.js";
+import { runTag } from "@/commands/boards/run-tag.js";
 import { runUnlinked } from "@/commands/branches/run-unlinked.js";
 import { runStates } from "@/commands/boards/run-states.js";
 import {
@@ -9,10 +14,17 @@ import {
   EJEMPLO_GENERAL,
   EJEMPLO_UNLINKED,
   EJEMPLO_STATES,
+  EJEMPLO_TAG,
 } from "@/help-examples.js";
 import { FORMATOS } from "@/format/formato.js";
 import { formatoPorDefecto } from "@/format/formato-por-defecto.js";
 import { rendir } from "@/rendir.js";
+
+// La version se lee del package.json publicado en vez de repetirla aqui: escrita
+// a mano se queda atras en el primer release que alguien no recuerde tocarla, y
+// --version pasa a mentir sin que falle nada.
+const requerir = createRequire(import.meta.url);
+const { version } = requerir("../package.json") as { version: string };
 
 const program = new Command();
 
@@ -38,7 +50,7 @@ program
       "(por defecto: text en la terminal, markdown al redirigir a otro proceso)",
     formatoPorDefecto(process.stdout.isTTY === true),
   )
-  .version("0.1.0")
+  .version(version)
   .addHelpText("after", EJEMPLO_GENERAL);
 
 const boards = program.command("boards").description("lo que az boards no cubre");
@@ -74,6 +86,18 @@ boards
       await rendir((formato) => runCreate(opciones, formato), formatoElegido());
     },
   );
+
+boards
+  .command("tag")
+  .argument("<ids...>", "ids de work items, p. ej. 11604 11605")
+  .option("--add <etiqueta>", "etiqueta adicional (repetible)", acumularOpcionRepetible, [])
+  .description(
+    `añade la etiqueta "${ETIQUETA_AGENTE}" sin borrar las que el work item ya tenga`,
+  )
+  .addHelpText("after", EJEMPLO_TAG)
+  .action(async (ids: string[], opciones: { add: string[] }) => {
+    await rendir((formato) => runTag(ids, opciones.add, formato), formatoElegido());
+  });
 
 const branches = program
   .command("branches")

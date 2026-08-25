@@ -77,7 +77,45 @@ Empieza por aquí:
     $ npx @skapxd/azure-devops-agent branches unlinked
 
 Quién hace qué:
-  consultar, buscar, actualizar, crear sin jerarquía   →  az boards
-  estados del workflow, crear con padre              →  boards
+  consultar, buscar, actualizar, crear sin jerarquía →  az boards
+  estados del workflow, crear con padre, etiquetar   →  boards
   ramas sin work item                                →  branches
+
+Para reencontrar tu trabajo en un tablero heredado:
+  Todo lo que se crea o modifica desde aquí queda con la etiqueta agent.
+    $ az boards query -o table --wiql "SELECT [System.Id], [System.Title] \
+        FROM WorkItems WHERE [System.TeamProject] = @project \
+        AND [System.Tags] CONTAINS WORDS 'agent'"
+`;
+
+export const EJEMPLO_TAG = `
+Para qué sirve:
+  Dejar huella en work items que ya existían, para que aparezcan en el mismo
+  filtro que los creados desde aquí. Pensado para el tablero heredado: cientos
+  de tareas asignadas y sin empezar, y tú solo quieres ver las que estás
+  gestionando de verdad.
+
+  az no sabe hacerlo. Su única vía es:
+    az boards work-item update --id 11604 --fields "System.Tags=agent"
+  y eso ASIGNA el campo entero: si el work item tenía etiquetas, las borra.
+  Aquí se leen primero y se escribe la unión.
+
+Ejemplo:
+  $ npx @skapxd/azure-devops-agent boards tag 11604 11605 --format text
+
+  #11604  qa, agent  (añadida)
+  #11605  agent      (ya la tenía)
+
+Después, para filtrar:
+  az boards query -o table --wiql "SELECT [System.Id], [System.Title] \\
+      FROM WorkItems WHERE [System.TeamProject] = 'MiProyecto' \\
+      AND [System.Tags] CONTAINS 'agent'"
+
+  Dos trampas, ambas silenciosas:
+
+  - Pon el nombre del proyecto literal. La macro @project no resuelve en
+    az boards query —ni pasando --project— y devuelve cero filas sin error.
+  - CONTAINS sobre etiquetas compara la etiqueta ENTERA, no subcadenas: buscar
+    "prioridad" no encuentra "prioridad 24". Por eso agent no colisiona con
+    agente-comercial, pero tampoco vale escribir la etiqueta a medias.
 `;

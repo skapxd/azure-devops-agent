@@ -1,6 +1,6 @@
 {
   "name": "@skapxd/azure-devops-agent",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Azure DevOps desde la terminal: work items, trazabilidad y contexto autodetectado del git remote",
   "keywords": [
     "azure-devops",

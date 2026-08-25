@@ -1,6 +1,6 @@
 ---
 name: azure-devops-workflow
-description: Registra y consulta trabajo en Azure DevOps desde la terminal — crea work items y los cuelga de su padre, los asigna, los transiciona y los enlaza con el código, usando az boards y el CLI @skapxd/azure-devops-agent para lo que az no cubre. Úsala siempre que aparezca trabajo sin registrar — una rama sin número de work item, un pendiente que el usuario menciona al pasar, deuda técnica, un TODO que quedará para después, un hallazgo de code review que no se corregirá ahora, o al cerrar algo para dejar el tablero al día. También cuando pregunten qué tienen asignado o en qué va un work item. No esperes a que digan "Azure DevOps" o "work item" — el trabajo se pierde justamente porque nadie se acuerda de nombrarlo.
+description: Registra y consulta trabajo en Azure DevOps desde la terminal — crea work items y los cuelga de su padre, los asigna, los transiciona, los enlaza con el código y los marca con la etiqueta agent para poder reencontrarlos después, usando az boards y el CLI @skapxd/azure-devops-agent para lo que az no cubre. Úsala siempre que aparezca trabajo sin registrar — una rama sin número de work item, un pendiente que el usuario menciona al pasar, deuda técnica, un TODO que quedará para después, un hallazgo de code review que no se corregirá ahora, o al cerrar algo para dejar el tablero al día. También cuando pregunten qué tienen asignado o en qué va un work item. No esperes a que digan "Azure DevOps" o "work item" — el trabajo se pierde justamente porque nadie se acuerda de nombrarlo.
 ---
 
 # Trazabilidad en Azure DevOps
@@ -27,6 +27,7 @@ az repos list --query "[0].project.name" -o tsv
 |---|---|
 | Estados válidos de un tipo de work item | `npx @skapxd/azure-devops-agent boards states "<tipo>"` |
 | Crear un work item **ya colgado** de su padre | `npx @skapxd/azure-devops-agent boards create --parent <id> …` |
+| Añadir una etiqueta **sin borrar** las que ya tiene | `… boards tag <id> [<id>…]` |
 | Ramas de git sin work item asociado | `… branches unlinked` |
 
 Se ejecuta sin instalar nada:
@@ -76,7 +77,7 @@ Muchos equipos añaden estados que reflejan su pipeline de ambientes ("Listo par
 ```bash
 az boards query -o table \
   --wiql "SELECT [System.Id], [System.Title] FROM WorkItems \
-WHERE [System.TeamProject] = @project AND [System.Title] CONTAINS 'palabra' \
+WHERE [System.TeamProject] = 'MiProyecto' AND [System.Title] CONTAINS 'palabra' \
 AND [System.ChangedDate] > @today - 120"
 ```
 
@@ -120,6 +121,55 @@ Se asigna por correo. Si el `CLAUDE.md` del repo no dice cuál es el del usuario
 Evita `@Me` en WiQL: resuelve a la identidad del token, que no siempre es la cuenta con la que el usuario trabaja en el portal. Si una consulta con `@Me` devuelve cero pero el usuario insiste en que tiene trabajo asignado, es casi seguro eso — usa el correo explícito antes de concluir que no tiene nada.
 
 Un comentario al cerrar, con el número de build o el commit, ahorra la arqueología de meses después.
+
+Después de cualquiera de estas, estampa la huella si el work item aún no la
+tiene (ver más abajo).
+
+## La huella `agent`
+
+Todo lo que pasa por aquí queda etiquetado con `agent`. No es decoración: es lo
+único que permite, en un tablero heredado con cientos de tareas asignadas y sin
+empezar, separar las que se están gestionando de verdad del fondo de armario.
+
+- **Al crear** no hay que hacer nada: `boards create` la estampa en la misma
+  llamada. Si creas con `az`, el work item nace sin huella.
+- **Al actualizar** un work item que no la tiene —transicionarlo, reasignarlo,
+  comentarlo— estámpala después:
+
+```bash
+npx @skapxd/azure-devops-agent boards tag 11604 11605
+```
+
+Acepta varios ids y es idempotente: si ya la tiene, no escribe. Eso importa
+porque cada escritura crea una revisión y notifica a quien siga el work item.
+
+**No uses `az` para esto.** Su única vía es
+`--fields "System.Tags=agent"`, que **asigna** el campo entero: si el work item
+tenía etiquetas, las borra sin avisar y sin forma de saber cuáles eran.
+
+Para recuperar después lo que estás gestionando:
+
+```bash
+az boards query -o table --wiql "SELECT [System.Id], [System.Title], [System.State] \
+FROM WorkItems WHERE [System.TeamProject] = 'MiProyecto' \
+AND [System.Tags] CONTAINS 'agent' AND [System.State] <> 'Done'"
+```
+
+Sobre `System.Tags`, `CONTAINS` compara la **etiqueta entera** pese a lo que
+sugiere el nombre: buscar `prioridad` no encuentra `prioridad 24`. Es lo más
+parecido a igualdad que existe aquí —Azure DevOps rechaza `=`, `EVER` e `IN`
+sobre este campo— y basta: `agent` no puede colisionar con `agente-comercial`.
+
+**Y escribe el nombre del proyecto literal, nunca `@project`.** Esa macro no
+resuelve en `az boards query` —tampoco pasando `--project`— y la consulta
+devuelve cero filas sin dar ningún error. En la búsqueda de duplicados eso es
+especialmente dañino: "no encontré nada" te lleva a crear el duplicado. El
+nombre lo da `az repos list --query "[0].project.name" -o tsv`. Las demás
+macros (`@today`, `@me`) sí funcionan.
+
+Estampar es modificar: si el work item no es parte de lo que el usuario te acaba
+de pedir, pregunta antes. Y nunca quites etiquetas que puso otra persona; no
+sabes qué consulta guardada dependía de ellas.
 
 ## Enlazar el código con su work item
 

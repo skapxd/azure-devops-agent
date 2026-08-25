@@ -43,8 +43,28 @@ test("los campos opcionales solo se envían si se piden", async () => {
     );
 
     const rutas = (llamadas[0]?.cuerpo as { path: string }[]).map((o) => o.path);
-    assert.deepEqual(rutas, ["/fields/System.Title", "/relations/-"]);
+    assert.deepEqual(rutas, [
+      "/fields/System.Title",
+      "/fields/System.Tags",
+      "/relations/-",
+    ]);
     assert.ok(!rutas.includes("/fields/System.AssignedTo"));
+  });
+});
+
+test("todo lo que se crea nace con la huella, para poder filtrarlo después", async () => {
+  await enUnRepoAzureDevOps(async () => {
+    const llamadas = await conFetchFalso(
+      () => ({ estado: 200, json: { id: 1 } }),
+      async () => {
+        await runCreate({ type: "Task", title: "x", parent: "10" }, "text");
+      },
+    );
+    const cuerpo = llamadas[0]?.cuerpo as { path: string; value: unknown }[];
+    const etiquetas = cuerpo.find((o) => o.path === "/fields/System.Tags");
+    // En la misma llamada que crea: ponerla después sería otra revisión, y una
+    // ventana en la que el work item existe pero no se puede filtrar.
+    assert.equal(etiquetas?.value, "agent");
   });
 });
 

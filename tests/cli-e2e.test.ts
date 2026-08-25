@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { after, before, describe, test } from "node:test";
 
 import { ejecutarCli } from "./helpers/ejecutar-cli.js";
@@ -86,6 +87,12 @@ describe("errores de uso", () => {
     assert.match(stderr, /--parent/);
   });
 
+  test("tag sin ids se rechaza antes de tocar la red", () => {
+    const { codigo, stderr } = ejecutarCli(["boards", "tag"], repo.ruta);
+    assert.equal(codigo, 1);
+    assert.match(stderr, /ids/);
+  });
+
   test("sin token, un comando que necesita red lo dice claramente", () => {
     const { codigo, stderr } = ejecutarCli(["boards", "states", "Task"], repo.ruta);
     assert.equal(codigo, 1);
@@ -130,11 +137,29 @@ describe("ayuda", () => {
       ["branches", "unlinked", "--help"],
       ["boards", "states", "--help"],
       ["boards", "create", "--help"],
+      ["boards", "tag", "--help"],
     ]) {
       const { stdout } = ejecutarCli(args, repo.ruta);
       assert.match(stdout, /Para qué sirve:/, `falta en: ${args.join(" ")}`);
       assert.match(stdout, /Ejemplo:/, `falta en: ${args.join(" ")}`);
     }
+  });
+
+  test("la ayuda de tag explica por qué az no sirve para esto", () => {
+    const { stdout } = ejecutarCli(["boards", "tag", "--help"], repo.ruta);
+    // Quien lea esto tiene que entender que --fields System.Tags= borra.
+    assert.match(stdout, /ASIGNA el campo entero/);
+    // Las dos trampas silenciosas que la ayuda tiene que advertir.
+    assert.match(stdout, /etiqueta ENTERA/);
+    assert.match(stdout, /@project no resuelve/);
+  });
+
+  test("--version coincide con la del paquete publicado", () => {
+    const { stdout } = ejecutarCli(["--version"], repo.ruta);
+    const { version } = JSON.parse(
+      readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+    ) as { version: string };
+    assert.equal(stdout.trim(), version);
   });
 
   test("la invocación que muestra la ayuda es la real, con npx", () => {
