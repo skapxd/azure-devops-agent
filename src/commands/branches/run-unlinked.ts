@@ -6,7 +6,7 @@ import { filtrarRamasSinWorkItem } from "@/commands/branches/filtrar-ramas-sin-w
 import { ramaPorDefecto } from "@/commands/branches/rama-por-defecto.js";
 import type { AdoError } from "@/errors/ado-error.js";
 import type { Formato } from "@/format/formato.js";
-import { renderRamasSinEnlazar } from "@/format/render-ramas-sin-enlazar.js";
+import { renderRamasSinEnlazar } from "@/commands/branches/render-ramas-sin-enlazar.js";
 
 /**
  * ## runUnlinked

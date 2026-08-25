@@ -5,7 +5,7 @@ import { sendAdo } from "@/api/send-ado.js";
 import { resolveContext } from "@/context/resolve-context.js";
 import type { AdoError } from "@/errors/ado-error.js";
 import type { Formato } from "@/format/formato.js";
-import { renderWorkItemCreado } from "@/format/render-work-item-creado.js";
+import { renderWorkItemCreado } from "@/commands/boards/render-work-item-creado.js";
 import type { CreateOptions } from "./create-options.js";
 
 /**

@@ -5,7 +5,7 @@ import { requestAdo } from "@/api/request-ado.js";
 import { resolveContext } from "@/context/resolve-context.js";
 import type { AdoError } from "@/errors/ado-error.js";
 import type { Formato } from "@/format/formato.js";
-import { renderEstados } from "@/format/render-estados.js";
+import { renderEstados } from "@/commands/boards/render-estados.js";
 
 /**
  * ## runStates

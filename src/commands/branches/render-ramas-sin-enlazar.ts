@@ -1,7 +1,7 @@
 import { match } from "ts-pattern";
 
-import { comoElementoDeLista } from "@/format/como-elemento-de-lista.js";
-import { conSangria } from "@/format/con-sangria.js";
+import { comoElementoDeLista } from "@/commands/branches/como-elemento-de-lista.js";
+import { conSangria } from "@/commands/branches/con-sangria.js";
 import type { Formato } from "@/format/formato.js";
 
 const SIN_RAMAS_SUELTAS = "(ninguna — no hay ramas de trabajo sin registrar)";

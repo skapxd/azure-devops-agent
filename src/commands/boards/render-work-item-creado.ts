@@ -1,7 +1,7 @@
 import { match } from "ts-pattern";
 
 import type { Formato } from "@/format/formato.js";
-import type { WorkItemCreado } from "@/format/work-item-creado.js";
+import type { WorkItemCreado } from "@/commands/boards/work-item-creado.js";
 
 /**
  * ## renderWorkItemCreado
