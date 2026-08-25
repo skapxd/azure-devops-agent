@@ -118,7 +118,44 @@ az boards work-item update --id <id> --discussion "Desplegado en el build 123."
 
 Se asigna por correo. Si el `CLAUDE.md` del repo no dice cuál es el del usuario, pregúntaselo una vez y ofrécele dejarlo escrito ahí. **No adivines el correo de otras personas**: si hay que asignar a alguien más y no lo sabes con certeza, pregunta — asignar al que no es le llega como notificación y ensucia su lista.
 
-Evita `@Me` en WiQL: resuelve a la identidad del token, que no siempre es la cuenta con la que el usuario trabaja en el portal. Si una consulta con `@Me` devuelve cero pero el usuario insiste en que tiene trabajo asignado, es casi seguro eso — usa el correo explícito antes de concluir que no tiene nada.
+**Para "¿qué tengo asignado?", usa `@Me`**, no el correo:
+
+```bash
+az boards query -o table --wiql "SELECT [System.Id], [System.Title], [System.State] \
+FROM WorkItems WHERE [System.TeamProject] = 'MiProyecto' \
+AND [System.AssignedTo] = @Me AND [System.State] <> 'Done'"
+```
+
+`@Me` resuelve a la identidad del PAT, y el PAT es de la persona que está
+trabajando: son la misma. Verificado — `@Me` y el correo real devuelven
+exactamente las mismas filas.
+
+Escribir el correo a mano es peor, y de forma traicionera: en Azure DevOps la
+identidad va por el correo de la cuenta **de esa organización**, que a menudo no
+es el correo corporativo con el que se conoce a la persona. Un correo que no
+corresponde no da error: devuelve cero, y eso se lee igual que "no tiene nada
+asignado". El nombre para mostrar tampoco sirve —`= 'Nombre Apellido'` devuelve
+cero— aunque sea lo que enseña el portal.
+
+Si necesitas el correo de verdad —`--assigned-to` lo pide, no acepta `@Me`—
+sácalo en vez de adivinarlo:
+
+```bash
+curl -s -u ":$AZURE_DEVOPS_EXT_PAT" \
+  "https://dev.azure.com/<org>/_apis/connectionData?api-version=7.0-preview" \
+  | node -pe 'JSON.parse(require("fs").readFileSync(0,"utf8")).authenticatedUser.properties.Account["\$value"]'
+```
+
+Con `curl` y no con `az rest`: `az rest` se autentica contra Azure AD, ignora el
+PAT y devuelve la página de inicio de sesión en HTML. Y `az devops user show`
+pide permiso *ReadExtended Users*, que un PAT de trabajo normal no tiene.
+
+Esto vale mientras el PAT sea **personal**. Con un token de servicio compartido,
+`@Me` es la cuenta de servicio y no la de nadie — y además todo lo que se cree
+queda atribuido al servicio, no a quien lo hizo. Que cada quien use el suyo.
+
+**No adivines la identidad de otras personas.** Para filtrar por alguien más,
+pregunta el correo o sácalo de un work item que ya tenga asignado.
 
 Un comentario al cerrar, con el número de build o el commit, ahorra la arqueología de meses después.
 
