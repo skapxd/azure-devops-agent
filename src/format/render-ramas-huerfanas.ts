@@ -4,7 +4,7 @@ import { comoElementoDeLista } from "@/format/como-elemento-de-lista.js";
 import { conSangria } from "@/format/con-sangria.js";
 import type { Formato } from "@/format/formato.js";
 
-const SIN_HUERFANAS = "(ninguna — todas las ramas referencian un work item)";
+const SIN_HUERFANAS = "(ninguna — no hay ramas de trabajo sin registrar)";
 
 /**
  * ## renderRamasHuerfanas

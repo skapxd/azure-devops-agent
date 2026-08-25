@@ -31,7 +31,7 @@ test("las ramas huérfanas se cuentan y pluralizan en markdown", () => {
 });
 
 test("sin ramas huérfanas el mensaje es el mismo en markdown y text", () => {
-  const esperado = "(ninguna — todas las ramas referencian un work item)";
+  const esperado = "(ninguna — no hay ramas de trabajo sin registrar)";
   assert.equal(renderRamasHuerfanas([], "markdown"), esperado);
   assert.equal(renderRamasHuerfanas([], "text"), esperado);
 });
