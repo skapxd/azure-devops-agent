@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { parseRemote } from "@/context/parse-remote.js";
+import { parseRemote } from "@/repo/parse-remote.js";
 
 const resumen = (url: string): string | null => {
   const contexto = parseRemote(url);

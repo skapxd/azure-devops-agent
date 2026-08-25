@@ -2,7 +2,7 @@ import { Result } from "@skapxd/result";
 
 import type { OperacionPatch } from "@/api/send-ado.js";
 import { sendAdo } from "@/api/send-ado.js";
-import { resolveContext } from "@/context/resolve-context.js";
+import { locateRepo } from "@/repo/locate-repo.js";
 import type { AdoError } from "@/errors/ado-error.js";
 import type { Formato } from "@/format/formato.js";
 import { renderWorkItemCreado } from "@/commands/boards/render-work-item-creado.js";
@@ -26,9 +26,9 @@ export async function runCreate(
   opciones: CreateOptions,
   formato: Formato,
 ): Promise<Result<void, AdoError>> {
-  const contexto = resolveContext();
-  if (Result.isErr(contexto)) return contexto;
-  const ctx = contexto.value;
+  const repo = locateRepo();
+  if (Result.isErr(repo)) return repo;
+  const ctx = repo.value;
 
   const operaciones: OperacionPatch[] = [
     { op: "add", path: "/fields/System.Title", value: opciones.title },

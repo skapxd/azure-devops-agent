@@ -1,4 +1,4 @@
-import type { PerfilConToken } from "@/context/perfil-con-token.js";
+import type { PerfilConToken } from "@/auth/perfil-con-token.js";
 
 /** Sintaxis POSIX: `export AZURE_DEVOPS_EXT_PAT="..."` */
 const DECLARACION_POSIX =

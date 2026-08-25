@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { Result, trySafe } from "@skapxd/result";
 
-import { perfilesConToken } from "@/context/perfiles-con-token.js";
+import { perfilesConToken } from "@/auth/perfiles-con-token.js";
 
 /**
  * ## loadPat

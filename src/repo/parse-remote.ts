@@ -1,6 +1,6 @@
 import { Result, trySafe } from "@skapxd/result";
 
-import type { AdoContext } from "@/context/ado-context.js";
+import type { RepoCoordinates } from "@/repo/repo-coordinates.js";
 
 /**
  * Identificadores admitidos en un segmento, ya decodificado.
@@ -41,7 +41,7 @@ const PATRONES: readonly RegExp[] = [
  * ella salen valores que acaban dentro de una URL, así que cada segmento se
  * valida ya decodificado antes de darlo por bueno.
  */
-export function parseRemote(url: string): AdoContext | null {
+export function parseRemote(url: string): RepoCoordinates | null {
   const limpia = url.trim().replace(/\.git$/, "");
 
   for (const patron of PATRONES) {

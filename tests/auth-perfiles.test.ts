@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { perfilesConToken } from "@/context/perfiles-con-token.js";
+import { perfilesConToken } from "@/auth/perfiles-con-token.js";
 
 test("en Windows busca los perfiles de PowerShell", () => {
   const rutas = perfilesConToken("win32").map((p) => p.ruta);

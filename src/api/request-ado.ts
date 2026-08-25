@@ -1,6 +1,6 @@
 import { Result, trySafe } from "@skapxd/result";
 
-import { loadPat } from "@/context/load-pat.js";
+import { loadPat } from "@/auth/load-pat.js";
 import type { AdoError } from "@/errors/ado-error.js";
 
 const NO_AUTORIZADO = 401;
