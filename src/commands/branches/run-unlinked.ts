@@ -6,7 +6,7 @@ import { filtrarRamasSinWorkItem } from "@/commands/branches/filtrar-ramas-sin-w
 import { ramaPorDefecto } from "@/commands/branches/rama-por-defecto.js";
 import type { AdoError } from "@/errors/ado-error.js";
 import type { Formato } from "@/format/formato.js";
-import { renderRamasHuerfanas } from "@/format/render-ramas-huerfanas.js";
+import { renderRamasSinEnlazar } from "@/format/render-ramas-sin-enlazar.js";
 
 /**
  * ## runUnlinked
@@ -36,6 +36,6 @@ export function runUnlinked(formato: Formato): Result<void, AdoError> {
   if (gitFallo) return Result.err({ type: "sin-repo" });
 
   const huerfanas = filtrarRamasSinWorkItem(ramas.value, ramaPorDefecto());
-  console.log(renderRamasHuerfanas(huerfanas, formato));
+  console.log(renderRamasSinEnlazar(huerfanas, formato));
   return Result.ok(undefined);
 }

@@ -3,7 +3,7 @@ import { test } from "node:test";
 
 import { parseFormato } from "@/format/parse-formato.js";
 import { renderEstados } from "@/format/render-estados.js";
-import { renderRamasHuerfanas } from "@/format/render-ramas-huerfanas.js";
+import { renderRamasSinEnlazar } from "@/format/render-ramas-sin-enlazar.js";
 
 test("markdown es el formato por defecto y da estructura, no texto alineado", () => {
   const salida = renderEstados("Task", ["To Do", "Done"], "markdown");
@@ -22,22 +22,22 @@ test("text mantiene la salida compacta de una línea", () => {
   assert.equal(renderEstados("Task", ["To Do", "Done"], "text"), "To Do → Done");
 });
 
-test("las ramas huérfanas se cuentan y pluralizan en markdown", () => {
-  const una = renderRamasHuerfanas(["fix/algo"], "markdown");
+test("las ramas sin enlazar se cuentan y pluralizan en markdown", () => {
+  const una = renderRamasSinEnlazar(["fix/algo"], "markdown");
   assert.match(una, /\*\*1 rama sin work item asociado:\*\*/);
 
-  const varias = renderRamasHuerfanas(["a", "b"], "markdown");
+  const varias = renderRamasSinEnlazar(["a", "b"], "markdown");
   assert.match(varias, /\*\*2 ramas sin work item asociado:\*\*/);
 });
 
-test("sin ramas huérfanas el mensaje es el mismo en markdown y text", () => {
+test("sin ramas sueltas el mensaje es el mismo en markdown y text", () => {
   const esperado = "(ninguna — no hay ramas de trabajo sin registrar)";
-  assert.equal(renderRamasHuerfanas([], "markdown"), esperado);
-  assert.equal(renderRamasHuerfanas([], "text"), esperado);
+  assert.equal(renderRamasSinEnlazar([], "markdown"), esperado);
+  assert.equal(renderRamasSinEnlazar([], "text"), esperado);
 });
 
-test("json de ramas huérfanas es una lista, también cuando está vacía", () => {
-  assert.deepEqual(JSON.parse(renderRamasHuerfanas([], "json")), { orphans: [] });
+test("el json es una lista, también cuando está vacía", () => {
+  assert.deepEqual(JSON.parse(renderRamasSinEnlazar([], "json")), { unlinked: [] });
 });
 
 test("un formato desconocido se rechaza en vez de caer al predeterminado", () => {

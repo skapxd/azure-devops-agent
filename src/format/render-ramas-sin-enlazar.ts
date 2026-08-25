@@ -4,21 +4,21 @@ import { comoElementoDeLista } from "@/format/como-elemento-de-lista.js";
 import { conSangria } from "@/format/con-sangria.js";
 import type { Formato } from "@/format/formato.js";
 
-const SIN_HUERFANAS = "(ninguna — no hay ramas de trabajo sin registrar)";
+const SIN_RAMAS_SUELTAS = "(ninguna — no hay ramas de trabajo sin registrar)";
 
 /**
- * ## renderRamasHuerfanas
+ * ## renderRamasSinEnlazar
  *
  * Formatea las ramas que no referencian ningún work item.
  *
  * ```ts
- * renderRamasHuerfanas(["fix/algo"], "markdown");
+ * renderRamasSinEnlazar(["fix/algo"], "markdown");
  * // **1 rama sin work item asociado:**
  * //
  * // - `fix/algo`
  * ```
  */
-export function renderRamasHuerfanas(
+export function renderRamasSinEnlazar(
   ramas: readonly string[],
   formato: Formato,
 ): string {
@@ -27,13 +27,13 @@ export function renderRamasHuerfanas(
   const noHayNinguna = ramas.length === 0;
   const seLeeEnPantalla = formato !== "json";
   const bastaConDecirloEnUnaFrase = noHayNinguna && seLeeEnPantalla;
-  if (bastaConDecirloEnUnaFrase) return SIN_HUERFANAS;
+  if (bastaConDecirloEnUnaFrase) return SIN_RAMAS_SUELTAS;
 
   const plural = ramas.length === 1 ? "rama" : "ramas";
   const encabezado = `**${String(ramas.length)} ${plural} sin work item asociado:**`;
 
   return match(formato)
-    .with("json", () => JSON.stringify({ orphans: ramas }, null, 2))
+    .with("json", () => JSON.stringify({ unlinked: ramas }, null, 2))
     .with("text", () =>
       ["Ramas sin work item asociado:", ...ramas.map(conSangria)].join("\n"),
     )
