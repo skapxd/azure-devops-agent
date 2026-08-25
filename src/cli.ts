@@ -7,6 +7,12 @@ import { runOrphans } from "@/commands/boards/run-orphans.js";
 import { runStates } from "@/commands/boards/run-states.js";
 import type { AdoError } from "@/errors/ado-error.js";
 import { describeAdoError } from "@/errors/describe-ado-error.js";
+import {
+  EJEMPLO_CREATE,
+  EJEMPLO_GENERAL,
+  EJEMPLO_ORPHANS,
+  EJEMPLO_STATES,
+} from "@/help-examples.js";
 import type { Formato } from "@/format/formato.js";
 import { FORMATOS, FORMATO_POR_DEFECTO } from "@/format/formato.js";
 import { parseFormato } from "@/format/parse-formato.js";
@@ -57,37 +63,38 @@ program
     `formato de salida: ${FORMATOS.join(", ")}`,
     FORMATO_POR_DEFECTO,
   )
-  .version("0.1.0");
+  .version("0.1.0")
+  .addHelpText("after", EJEMPLO_GENERAL);
 
-const boards = program.command("boards").description("los huecos de `az boards`");
+const boards = program.command("boards").description("lo que az boards no cubre");
 
 boards
   .command("states")
-  .argument("<tipo>", 'tipo de work item, p. ej. "Product Backlog Item"')
-  .description("estados válidos del workflow de ese tipo (az no los expone)")
+  .argument("<tipo>", 'nombre exacto del tipo, p. ej. "Product Backlog Item"')
+  .description("los estados por los que puede pasar un work item de ese tipo")
+  .addHelpText("after", EJEMPLO_STATES)
   .action(async (tipo: string) => {
     await rendir(async (formato) => runStates(tipo, formato));
   });
 
 boards
   .command("orphans")
-  .description("ramas locales sin work item asociado (no existe en az)")
+  .description("qué ramas tuyas no están registradas en el tablero")
+  .addHelpText("after", EJEMPLO_ORPHANS)
   .action(async () => {
     await rendir((formato) => runOrphans(formato));
   });
 
 boards
   .command("create")
-  .requiredOption("--type <tipo>", "tipo de work item, p. ej. Task o Bug")
-  .requiredOption("--title <texto>", "título; se lee en una lista de cientos")
-  .requiredOption("--parent <id>", "historia de la que cuelga")
-  .option("--description <html>", "descripción; se renderiza como HTML")
-  .option("--assign <correo>", "responsable")
-  .option("--iteration <ruta>", "sprint; sin esto cae al backlog")
-  .description(
-    "crea un work item YA COLGADO de su padre, en una sola llamada.\n" +
-      "Sin --parent usa `az boards work-item create`, que hace lo mismo.",
-  )
+  .requiredOption("--type <tipo>", "Task, Bug… (ver: az boards work-item type list)")
+  .requiredOption("--title <texto>", "qué pasa, no dónde: se lee en una lista de cientos")
+  .requiredOption("--parent <id>", "id de la historia de la que cuelga, p. ej. 11603")
+  .option("--description <html>", "por qué importa y qué se rompe si no se hace (HTML)")
+  .option("--assign <correo>", "responsable, por correo")
+  .option("--iteration <ruta>", "sprint (az boards iteration project list); sin esto va al backlog")
+  .description("crea una tarea ya colgada de su historia, en una sola llamada")
+  .addHelpText("after", EJEMPLO_CREATE)
   .action(
     async (opciones: {
       type: string;
