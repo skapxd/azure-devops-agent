@@ -5,7 +5,6 @@ import { Command } from "commander";
 import { runCreate } from "@/commands/boards/run-create.js";
 import { runOrphans } from "@/commands/boards/run-orphans.js";
 import { runStates } from "@/commands/boards/run-states.js";
-import { runContext } from "@/commands/run-context.js";
 import type { AdoError } from "@/errors/ado-error.js";
 import { describeAdoError } from "@/errors/describe-ado-error.js";
 import type { Formato } from "@/format/formato.js";
@@ -43,10 +42,11 @@ const program = new Command();
 program
   .name("ado")
   .description(
-    "Lo que `az boards` no hace, para trabajar Azure DevOps desde la terminal.\n\n" +
+    "Tres cosas que `az boards` no hace.\n\n" +
       "Este CLI es COMPLEMENTARIO a la extensión azure-devops de Azure CLI, no un\n" +
-      "reemplazo: para consultar, crear sin jerarquía o actualizar work items usa\n" +
-      "`az boards`, que ya lo cubre bien. Aquí viven solo los huecos que deja.\n\n" +
+      "reemplazo. `az` detecta solo la organización y el proyecto desde el git\n" +
+      "remote, y cubre bien consultar, actualizar y crear sin jerarquía: úsalo para\n" +
+      "todo eso. Aquí viven solo los huecos que deja.\n\n" +
       "Autenticación: Personal Access Token en AZURE_DEVOPS_EXT_PAT. Se lee del\n" +
       "entorno y, si no está ahí, del perfil de shell del sistema: en macOS y Linux\n" +
       "~/.zshrc, ~/.bashrc, ~/.profile, ~/.zshenv y ~/.bash_profile; en Windows el\n" +
@@ -58,15 +58,6 @@ program
     FORMATO_POR_DEFECTO,
   )
   .version("0.1.0");
-
-program
-  .command("context")
-  .description(
-    "organización, proyecto, repositorio e identidad — para alimentar a `az`",
-  )
-  .action(async () => {
-    await rendir(async (formato) => runContext(formato));
-  });
 
 const boards = program.command("boards").description("los huecos de `az boards`");
 

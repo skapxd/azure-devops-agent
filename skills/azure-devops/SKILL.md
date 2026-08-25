@@ -15,11 +15,16 @@ El problema rara vez es que la gente no sepa usar el tablero. Es que abrir el po
 
 **`az boards`** (extensión `azure-devops` de Azure CLI) hace la mayor parte: consultar, crear, actualizar, buscar. Es la herramienta por defecto.
 
+**No hay que configurarle nada.** `az` detecta la organización y el proyecto del `git remote` de la carpeta donde estés. Para ver cuál está usando:
+
+```bash
+az repos list --query "[0].project.name" -o tsv
+```
+
 **`@skapxd/azure-devops-agent`** cubre solo tres huecos que `az` deja:
 
 | Necesidad | Comando |
 |---|---|
-| Saber org, proyecto e identidad de este repo | `ado context` |
 | Estados válidos de un tipo de work item | `ado boards states "<tipo>"` |
 | Crear un work item **ya colgado** de su padre | `ado boards create --parent <id> …` |
 | Ramas sin work item asociado | `ado boards orphans` |
@@ -34,25 +39,7 @@ Todos aceptan `--format <markdown|json|text>`. El predeterminado es **markdown**
 
 Si algo se puede hacer con `az boards`, hazlo con `az boards`.
 
-## Empieza por el contexto
-
-```bash
-pnpx @skapxd/azure-devops-agent context --format json
-```
-
-```json
-{
-  "org": "MiOrg",
-  "project": "MiProyecto",
-  "repo": "MiRepo",
-  "orgUrl": "https://dev.azure.com/MiOrg",
-  "identity": "persona@ejemplo.com"
-}
-```
-
-De ahí salen el `--org` y el `--project` que pide `az`, y la identidad para asignar sin adivinar correos. Todo se deriva del `git remote`, así que no preguntes por ello.
-
-Si el remote no es de Azure DevOps, falla con un mensaje claro y esta skill no aplica — dilo y sigue con lo que el usuario estaba haciendo.
+Si el repo no es de Azure DevOps, `az` lo dirá y esta skill no aplica — dilo y sigue con lo que el usuario estaba haciendo.
 
 ### Token
 
@@ -78,7 +65,7 @@ Cuándo **no**: cambios triviales, exploración que no deja pendientes, y cuando
 **Consulta el flujo, no lo asumas.** Los tipos y estados varían según la plantilla del proyecto y casi siempre están personalizados. Usar un estado que no existe falla; usar uno que existe pero significa otra cosa desordena el tablero de todos.
 
 ```bash
-az boards work-item type list --org <org-url> --project <proyecto> -o table
+az boards work-item type list -o table
 pnpx @skapxd/azure-devops-agent boards states "Product Backlog Item"
 ```
 
@@ -87,7 +74,7 @@ Muchos equipos añaden estados que reflejan su pipeline de ambientes ("Listo par
 **Busca si ya existe.** Duplicar tickets hace tanto daño como no crearlos:
 
 ```bash
-az boards query --org <org-url> --project <proyecto> -o table \
+az boards query -o table \
   --wiql "SELECT [System.Id], [System.Title] FROM WorkItems \
 WHERE [System.TeamProject] = @project AND [System.Title] CONTAINS 'palabra' \
 AND [System.ChangedDate] > @today - 120"
@@ -98,8 +85,7 @@ AND [System.ChangedDate] > @today - 120"
 **Sin padre**, con `az`:
 
 ```bash
-az boards work-item create --type Bug --title "..." --description "<b>Pasos</b>…" \
-  --org <org-url> --project <proyecto>
+az boards work-item create --type Bug --title "..." --description "<b>Pasos</b>…"
 ```
 
 **Colgado de una historia**, con el CLI — en una sola llamada:
@@ -116,20 +102,20 @@ Descomponer una historia en tareas es lo primero que se salta el equipo cuando v
 
 `--description` se renderiza como **HTML**: usa `<br>`, `<ul><li>`, `<b>`. Los saltos de línea planos se pierden y el texto queda en un párrafo ilegible.
 
-Para el sprint en curso, `az boards iteration project list --org <org-url> --project <proyecto>`. Si no hay sprint activo, omite `--iteration`: cae al backlog, que es lo correcto.
+Para el sprint en curso, `az boards iteration project list`. Si no hay sprint activo, omite `--iteration`: cae al backlog, que es lo correcto.
 
 ## Actualizar y consultar
 
 Todo con `az`:
 
 ```bash
-az boards work-item show   --id <id> --org <org-url>
-az boards work-item update --id <id> --state "In Progress" --org <org-url>
-az boards work-item update --id <id> --assigned-to persona@ejemplo.com --org <org-url>
-az boards work-item update --id <id> --discussion "Desplegado en el build 123." --org <org-url>
+az boards work-item show   --id <id>
+az boards work-item update --id <id> --state "In Progress"
+az boards work-item update --id <id> --assigned-to persona@ejemplo.com
+az boards work-item update --id <id> --discussion "Desplegado en el build 123."
 ```
 
-Se asigna por correo, y el del usuario actual sale de `ado context`. **No adivines el correo de otras personas**: si hay que asignar a alguien más y no lo sabes con certeza, pregunta — asignar al que no es le llega como notificación y ensucia su lista.
+Se asigna por correo. Si el `CLAUDE.md` del repo no dice cuál es el del usuario, pregúntaselo una vez y ofrécele dejarlo escrito ahí. **No adivines el correo de otras personas**: si hay que asignar a alguien más y no lo sabes con certeza, pregunta — asignar al que no es le llega como notificación y ensucia su lista.
 
 Evita `@Me` en WiQL: resuelve a la identidad del token, que no siempre es la cuenta con la que el usuario trabaja en el portal. Si una consulta con `@Me` devuelve cero pero el usuario insiste en que tiene trabajo asignado, es casi seguro eso — usa el correo explícito antes de concluir que no tiene nada.
 

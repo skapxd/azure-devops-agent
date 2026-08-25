@@ -56,10 +56,9 @@ Ese rodeo existe porque en macOS y Linux un shell no interactivo no carga `.zshr
 
 ## Comandos
 
-Son cuatro, y cada uno existe porque `az` no lo cubre:
+Son tres, y cada uno existe porque `az` no lo cubre:
 
 ```
-ado context                 organización, proyecto, repositorio e identidad
 ado boards states <tipo>    estados válidos del workflow de ese tipo
 ado boards orphans          ramas locales sin work item asociado
 ado boards create --type <tipo> --title <texto> --parent <id>
@@ -73,19 +72,17 @@ ado boards create --type <tipo> --title <texto> --parent <id>
 El predeterminado es **markdown**, porque el lector principal de este CLI es un agente de código y el markdown le da estructura semántica —tablas, listas ordenadas, énfasis— que el texto alineado con espacios no tiene.
 
 ```console
-$ ado context
-| Campo | Valor |
-| --- | --- |
-| Organización | `MiOrg` |
-| Proyecto | `MiProyecto` |
-| Identidad | `persona@ejemplo.com` |
+$ ado boards orphans
+**2 ramas sin work item asociado:**
+
+- `fix/ajuste-rapido`
+- `back/n-a/duplicar-concesionarios`
 ```
 
 `--format json` para encadenar con otro proceso, `--format text` para la salida compacta de siempre. Un valor desconocido se rechaza en vez de caer al predeterminado en silencio: quien escribe `--format markdwon` quiere markdown, y darle otra cosa sin avisar le hace perder más tiempo que un error.
 
 Por qué cada uno:
 
-- **`context`** deriva del `git remote` el `--org` y `--project` que `az` pide en cada comando, más la identidad del token. `az` sabe autodetectar la organización con `--detect`, pero no el proyecto, y no responde "¿con qué cuenta estoy trabajando?" — dato necesario para asignar sin adivinar correos.
 - **`states`** consulta los estados reales del workflow. `az` no los expone, y casi todos los proyectos los tienen personalizados: usar uno que no existe falla.
 - **`orphans`** lista las ramas que no referencian ningún work item. No existe en ningún sitio, y es donde más trazabilidad se pierde.
 - **`create --parent`** crea el work item **ya colgado** de su historia, en una sola llamada. En `az` son dos comandos (`work-item create` y `relation add`), y un fallo entre ambos deja un huérfano que nadie sabe de dónde salió.
